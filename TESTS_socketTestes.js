@@ -15,7 +15,7 @@ const sessionMiddleware = session({
     secret: "changeit",
     resave: true,
     saveUninitialized: true,
-    cookie: {maxAge: 5000}
+    cookie: {maxAge: 600000}
 });
 
 app.use(sessionMiddleware);
@@ -37,8 +37,6 @@ app.get("/login", (req, res) => {
     res.sendFile(join(__dirname, "TESTS_login_successfully.html"));
 });
 
-
-
 // Rota para incrementar contagem na sessão
 app.post("/incr", (req, res) => {
     const session = req.session;
@@ -52,6 +50,8 @@ app.post("/incr", (req, res) => {
 
 const SESSION_RELOAD_INTERVAL = 2 * 1000;
 
+const users = {}; // Armazena usuários conectados
+
 io.on("connection", (socket) => {
     const session = socket.request.session;
     const sessionId = session.id;
@@ -60,6 +60,12 @@ io.on("connection", (socket) => {
     console.log('session');
     console.log(session);
     console.log('sessionId: ' + sessionId);
+
+    // Adiciona o usuário ao objeto
+    users[sessionId] = { id: sessionId };
+
+    // Emite a lista atualizada para todos os clientes
+    io.emit("updateUsers", Object.values(users));
 
     // Cliente entra na sala correspondente ao ID da sessão
     socket.join(sessionId);
@@ -95,6 +101,12 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);
         clearInterval(timer);
+
+        // Remove o usuário do objeto
+        delete users[sessionId];
+
+        // Atualiza a lista de usuários conectados
+        io.emit("updateUsers", Object.values(users));
     });
 });
 

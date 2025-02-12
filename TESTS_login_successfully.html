@@ -5,6 +5,13 @@
     <title>Hello!</title>
 </head>
 <script src="/socket.io/socket.io.js"></script>
+
+
+<body>
+    <h1>Login successufully!!!</h1>
+    <ul id="userList"></ul>
+</body>
+
 <script>
     /*
     import { io } from "socket.io-client";
@@ -24,10 +31,10 @@
                 'Content-Type': 'application/json'
             }
         }).then(r => r.json())
-        .then(data => {
-            document.getElementById('count').textContent = `Contagem: ${data.count}`;
-        })
-        .catch(err => console.error('Error:', err));
+            .then(data => {
+                document.getElementById('count').textContent = `Contagem: ${data.count}`;
+            })
+            .catch(err => console.error('Error:', err));
     }
 
     const socket = io();
@@ -48,10 +55,20 @@
         socket.emit('yet-expires');
     }, 1000);
 
-</script>
+    const userList = document.getElementById("userList");
 
-<body>
-    <h1>Login successufully!!!</h1>
-</body>
+    // Atualiza a lista de usuários conectados
+    socket.on("updateUsers", (users) => {
+        userList.innerHTML = "";
+        users.forEach(user => {
+            const li = document.createElement("li");
+            li.textContent = `Usuário: ${user.id}`;
+            userList.appendChild(li);
+            console.log(`Usuário: ${user.id}`);
+        });
+        console.log('----------------------------------------------')
+    });
+
+</script>
 
 </html>
