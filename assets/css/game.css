@@ -1,0 +1,91 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#flashcards {
+    display: flex;
+    flex-wrap: wrap;
+    /* Permite que os elementos quebrem linha */
+    justify-content: center;
+    /* Centraliza os elementos */
+    gap: 10px;
+    /* Espaço entre as cartas */
+    padding: 20px;
+    width: 710px;
+}
+
+.flashcard {
+    width: 80px;
+    height: 100px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.flashcard-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+}
+
+/* .flip { */
+.flashcard-inner:hover {
+    transform: rotateY(180deg);
+}
+
+.flashcard-inner img {
+    height: 50px;
+}
+
+.flashcard-front,
+.flashcard-back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    /* background-color: #e3e3e3; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.flashcard-front {
+    font-size: 10px;
+    color: #fff;
+}
+
+.flashcard-back {
+    background-color: #e3e3e3;
+    font-size: 50px;
+    transform: rotateY(180deg);
+}
+
+.header {
+    padding: 15px;
+}
+
+@media (max-width: 576px) {
+
+    /* Breakpoint sm */
+    .container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .header {
+        width: 350px !important;
+    }
+
+    .flashcard {
+        width: 60px;
+        height: 75px;
+    }
+}
+
