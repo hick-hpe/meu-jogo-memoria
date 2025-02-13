@@ -14,7 +14,7 @@
 <body class="bg-light">
     <div class="container col-md-6 col-sm-8 mt-5 bg-light user shadow p-3 rounded-3">
         <form action="/auth">
-            <input type="hidden" id="userId"> <!-- ID do usuário em um campo hidden -->
+            <input type="hidden" id="userId">
             <h3 class="border-bottom border-5 mb-3 p-3">Meus dados</h3>
             <div class="mb-2">
                 <label for="username">Username</label>
@@ -37,6 +37,7 @@
                 readonly>
             <button class="btn btn-primary p-2 w-50" id="btn-jogar">Jogar</button>
         </div>
+        <div class="text-center" id="mensagem-convite"></div>
     </div>
 
     <button type="button" id="btn-abrir-modal" class="btn btn-primary d-none" data-bs-toggle="modal"
@@ -46,6 +47,8 @@
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
+                <button type="button" class="btn-close d-none" id="btn-closeX" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
                 <div class="modal-header bg-primary text-light">
                     <h1 class="w-100 modal-title fs-5 text-center text-uppercase" id="exampleModalLabel">
                         <i class="bi bi-exclamation-triangle"></i> Convite recebido <i
@@ -59,7 +62,8 @@
                     <button type="button" id="btn-close" class="btn btn-danger" data-bs-dismiss="modal"><i
                             class="bi-x-lg"></i>
                         Cancelar</button>
-                    <a href="/game/" type="button" class="btn btn-success"><i class="bi-check-lg"></i> Aceitar</a>
+                    <button type="button" id="accept-invite" class="btn btn-success"><i class="bi-check-lg"></i>
+                        Aceitar</button>
                 </div>
             </div>
         </div>

@@ -112,11 +112,21 @@ io.on("connection", async (socket) => {
         });
     }, SESSION_RELOAD_INTERVAL);
 
-    socket.on('invite-ply', ({ user, from, to }) => {
-        console.log(`Enviando convite de ${from} para ${to}`);
-        io.to(user.id).emit('invite-ply', from);
+    socket.on('invite-ply', ({ userFrom, userTo }) => {
+        console.log(`Enviando convite de ${userFrom.nome} para ${userTo.nome}`);
+        io.to(userFrom.id).emit('invite-ply', { userFrom, userTo });
     });
 
+    socket.on('cancel-invite', ({ userFrom, userTo }) => {
+        console.log(`Cancelando convite de ${userFrom.nome} para ${userTo.nome}`);
+        io.to(userTo.id).emit('cancel-invite');
+    });
+
+    socket.on('accept-invite', ({ userFrom, userTo }) => {
+        console.log(`Aceitando convite de ${userFrom.nome} para ${userTo.nome}`);
+        io.to(userFrom.id).emit('accept-invite', { userFrom, userTo });
+        io.to(userTo.id).emit('accept-invite', { userFrom, userTo });
+    });
 
     socket.on("disconnect", () => {
         console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);

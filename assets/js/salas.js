@@ -2,15 +2,21 @@ const btnJogar = document.getElementById('btn-jogar');
 const inputSalaEscolhida = document.getElementById('sala-escolhida');
 const listaSalas = document.getElementById('salas');
 const btnClose = document.getElementById('btn-close');
+const btnCloseX = document.getElementById('btn-closeX');
 const inputUsername = document.getElementById('username');
 const btnSave = document.getElementById('btn-save');
 const btnDelete = document.getElementById('btn-delete');
 const btnDeleteConfirm = document.getElementById('deletar-conta');
+const btnAcceptGame = document.getElementById('accept-invite');
+const divMensagemConvite = document.getElementById('mensagem-convite');
 
 let escolher_sala = true;
 let usersCurrent = [];
 let users_conectados;
 const TEMPO_CONVITE_ATIVO = 10000;
+let data = {};
+let interval_convite;
+let user_cancel_invite = false;
 
 // Conexão com o servidor Socket.io
 const socket = io();
@@ -25,18 +31,52 @@ socket.on('disconnect', () => {
 
 socket.on('updateUsers', (users) => {
     // Atualiza a lista de usuários conectados
-    // users_conectados = new Set(Object.keys(users));
     usersCurrent = users;
     users_conectados = new Set(users.map(user => user.nome));
-    // console.log('users');
-    // console.log(users_conectados);
     listar_usuarios();
 });
 
-socket.on('invite-ply', (nome) => {
-    exibir_modal_convite(nome);
+socket.on('invite-ply', ({ userFrom, userTo }) => {
+    data = { userFrom, userTo };
+    let tempo = 1000;
+    exibir_modal_convite(userFrom.nome);
+    interval_convite = setInterval(() => {
+        if (tempo >= TEMPO_CONVITE_ATIVO) {
+            // Fechar o modal de convite
+            fechar_modal_convite();
+            socket.emit('cancel-invite', data);
+        }
+
+        tempo += 1000;
+    }, 1000);
 });
 
+socket.on('cancel-invite', () => {
+    // alert('---------------- PEDIDO RECUSADO ----------------');
+    divMensagemConvite.style.color = 'red';
+    divMensagemConvite.innerText = 'Pedido recusada :( !!!';
+    setTimeout(() => {
+        divMensagemConvite.innerText = '';
+        divMensagemConvite.style.color = 'black';
+    }, 3000);
+    escolher_sala = true;
+    btnJogar.innerHTML = `Jogar`;
+});
+
+socket.on('accept-invite', () => {
+    // alert("------------------- INICIAR JOGO -------------------");
+    divMensagemConvite.style.color = 'green';
+    divMensagemConvite.innerText = 'Convite aceito :) !!!';
+    setTimeout(() => {
+        divMensagemConvite.innerText = '';
+        divMensagemConvite.style.color = 'black';
+    }, 3000);
+    clearInterval(interval_convite);
+    fechar_modal_convite();
+    escolher_sala = true;
+    btnJogar.innerHTML = `Jogar`;
+
+});
 
 function listar_usuarios() {
     console.log('[SIZE]: ' + users_conectados.size);
@@ -44,9 +84,6 @@ function listar_usuarios() {
     console.log('placeholder: ' + inputUsername.placeholder);
     users_conectados.forEach((user) => {
         if (user !== inputUsername.placeholder) {
-            // users_conectados.delete(user);
-            // console.log(JSON.stringify(users_conectados));
-
             const li = document.createElement('li');
             li.innerText = user;
             li.classList.add('list-group-item');
@@ -75,17 +112,42 @@ function listar_usuarios() {
 
 function enviar_pedido() {
     console.log('-------------------------- enviar_pedido --------------------------');
+    let userFrom = {};
+    let userTo = {};
+    let achouOsDois = 0;
+
     for (const user of usersCurrent) {
-        console.log('user.nome:                ' + user.nome);
-        console.log('inputSalaEscolhida.value: ' + inputSalaEscolhida.value);
         if (user.nome === inputSalaEscolhida.value) {
-            console.log('--- Enviando pedido ---');
-            console.log(`from ${inputUsername.value} to ${inputSalaEscolhida.value}`);
-            socket.emit('invite-ply', { user: user, from: inputUsername.value, to: inputSalaEscolhida.value });
-            break;
+            userFrom = user;
+            achouOsDois++;
+
+            if (achouOsDois === 2) {
+                break;
+            }
+        }
+
+        if (user.nome === inputUsername.placeholder) {
+            userTo = user;
+            achouOsDois++;
+
+            if (achouOsDois === 2) {
+                break;
+            }
         }
     }
+
+    data = { userFrom, userTo };
+
+    console.log('--- Enviando pedido ---');
+    console.log(`from ${inputUsername.value} to ${inputSalaEscolhida.value}`);
+    socket.emit('invite-ply', data);
 }
+
+// Aceitar pedido
+btnAcceptGame.addEventListener('click', () => {
+    console.log('-------------------------- aceitar_pedido --------------------------');
+    socket.emit('accept-invite', data);
+});
 
 // Evento do botão jogar
 btnJogar.addEventListener('click', () => {
@@ -110,8 +172,7 @@ btnJogar.addEventListener('click', () => {
 
 // Fechar modal
 btnClose.addEventListener('click', () => {
-    escolher_sala = true;
-    btnJogar.innerHTML = `Jogar`;
+    socket.emit('cancel-invite', data);
 });
 
 btnSave.addEventListener('click', async (e) => {
@@ -182,17 +243,25 @@ async function excluir_conta() {
 // Função para esperar por 5 segundos antes de permitir a escolha de sala novamente
 function esperando_por_jogador() {
     escolher_sala = false;
-    setTimeout(() => {
-        btnJogar.innerHTML = `Jogar`;
-        escolher_sala = true;
-        btnClose.click();
-    }, TEMPO_CONVITE_ATIVO); // 5 segundos
+    let tempo = 1000;
+
+    interval_convite = setTimeout(() => {
+        if (tempo >= TEMPO_CONVITE_ATIVO) {
+            btnJogar.innerHTML = `Jogar`;
+            escolher_sala = true;
+            btnCloseX.click();
+        }
+    }, 1000); // 5 segundos
 }
 
 function exibir_modal_convite(nome) {
     const elemStrong = document.getElementById('user-modal');
     elemStrong.innerText = nome;
     document.getElementById('btn-abrir-modal').click();
+}
+
+function fechar_modal_convite() {
+    btnCloseX.click();
 }
 
 async function get_and_set_username() {
