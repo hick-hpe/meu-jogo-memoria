@@ -8,7 +8,9 @@ const btnDelete = document.getElementById('btn-delete');
 const btnDeleteConfirm = document.getElementById('deletar-conta');
 
 let escolher_sala = true;
+let usersCurrent = [];
 let users_conectados;
+const TEMPO_CONVITE_ATIVO = 10000;
 
 // Conexão com o servidor Socket.io
 const socket = io();
@@ -24,40 +26,65 @@ socket.on('disconnect', () => {
 socket.on('updateUsers', (users) => {
     // Atualiza a lista de usuários conectados
     // users_conectados = new Set(Object.keys(users));
+    usersCurrent = users;
     users_conectados = new Set(users.map(user => user.nome));
-    console.log('users');
-    console.log(users_conectados);
+    // console.log('users');
+    // console.log(users_conectados);
     listar_usuarios();
 });
+
+socket.on('invite-ply', (nome) => {
+    exibir_modal_convite(nome);
+});
+
 
 function listar_usuarios() {
     console.log('[SIZE]: ' + users_conectados.size);
     listaSalas.innerHTML = "";
+    console.log('placeholder: ' + inputUsername.placeholder);
     users_conectados.forEach((user) => {
-        const li = document.createElement('li');
-        li.innerText = user;
-        li.classList.add('list-group-item');
+        if (user !== inputUsername.placeholder) {
+            // users_conectados.delete(user);
+            // console.log(JSON.stringify(users_conectados));
 
-        // Adiciona o evento de clique para selecionar/desmarcar a sala
-        li.addEventListener('click', () => {
-            if (escolher_sala) {
-                if (li.classList.contains('active')) {
-                    // Se já está ativo, desmarca e limpa o input
-                    li.classList.remove('active');
-                    inputSalaEscolhida.value = "";
-                } else {
-                    // Remove a classe 'active' de todos os itens antes de adicionar ao novo
-                    document.querySelectorAll('li').forEach((el) => el.classList.remove('active'));
+            const li = document.createElement('li');
+            li.innerText = user;
+            li.classList.add('list-group-item');
 
-                    // Adiciona a classe 'active' apenas ao item clicado
-                    li.classList.add('active');
-                    inputSalaEscolhida.value = sala.nome;
+            // Adiciona o evento de clique para selecionar/desmarcar a sala
+            li.addEventListener('click', () => {
+                if (escolher_sala) {
+                    if (li.classList.contains('active')) {
+                        // Se já está ativo, desmarca e limpa o input
+                        li.classList.remove('active');
+                        inputSalaEscolhida.value = "";
+                    } else {
+                        // Remove a classe 'active' de todos os itens antes de adicionar ao novo
+                        document.querySelectorAll('li').forEach((el) => el.classList.remove('active'));
+
+                        // Adiciona a classe 'active' apenas ao item clicado
+                        li.classList.add('active');
+                        inputSalaEscolhida.value = user;
+                    }
                 }
-            }
-        });
-
-        listaSalas.appendChild(li);
+            });
+            listaSalas.appendChild(li);
+        }
     });
+}
+
+function enviar_pedido() {
+    console.log('-------------------------- enviar_pedido --------------------------');
+    for (const user of usersCurrent) {
+        console.log('user.nome:                ' + user.nome);
+        console.log('inputSalaEscolhida.value: ' + inputSalaEscolhida.value);
+        if (user.nome === inputSalaEscolhida.value) {
+            console.log('--- Enviando pedido ---');
+            console.log(`from ${inputUsername.value} to ${inputSalaEscolhida.value}`);
+            socket.emit('invite-ply', { user: user, from: inputUsername.value, to: inputSalaEscolhida.value });
+            break;
+        }
+    }
 }
 
 // Evento do botão jogar
@@ -73,7 +100,7 @@ btnJogar.addEventListener('click', () => {
         <img src="/assets/img/loading.gif" alt="gif" height="25" /> <i>Esperando</i>
         `;
         esperando_por_jogador();
-        exibir_modal_convite();
+        enviar_pedido();
     } else {
         // Resetando escolha
         escolher_sala = true;
@@ -153,19 +180,18 @@ async function excluir_conta() {
 
 
 // Função para esperar por 5 segundos antes de permitir a escolha de sala novamente
-// <scholarship@compass.uol>
-// https://teams.microsoft.com/l/meetup-join/19%3ameeting_NjNkNzkyMDMtN2U5Yy00NDE5LTkwMmMtNjY2MmNkNWIwMzk3%40thread.v2/0?context=%7b%22Tid%22%3a%2297fa1f96-7877-469f-aa37-1f8568e3a3ff%22%2c%22Oid%22%3a%224cda66c2-c0b1-426a-8562-55bcbf6170fd%22%7d
-// henrique.emerick.pb@compasso.com.br
 function esperando_por_jogador() {
     escolher_sala = false;
     setTimeout(() => {
         btnJogar.innerHTML = `Jogar`;
         escolher_sala = true;
         btnClose.click();
-    }, 5000); // 5 segundos
+    }, TEMPO_CONVITE_ATIVO); // 5 segundos
 }
 
-function exibir_modal_convite() {
+function exibir_modal_convite(nome) {
+    const elemStrong = document.getElementById('user-modal');
+    elemStrong.innerText = nome;
     document.getElementById('btn-abrir-modal').click();
 }
 

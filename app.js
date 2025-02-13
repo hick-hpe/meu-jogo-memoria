@@ -112,6 +112,12 @@ io.on("connection", async (socket) => {
         });
     }, SESSION_RELOAD_INTERVAL);
 
+    socket.on('invite-ply', ({ user, from, to }) => {
+        console.log(`Enviando convite de ${from} para ${to}`);
+        io.to(user.id).emit('invite-ply', from);
+    });
+
+
     socket.on("disconnect", () => {
         console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);
         clearInterval(timer);
