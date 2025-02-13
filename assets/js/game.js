@@ -18,9 +18,10 @@ socket.on('get-info', (info) => {
     desenhar_cartas(info.frutas_id);
 });
 
-socket.on('flip-card', (id) => {
-    alert("Algume virou")
-    const carta = document.getElementById(`flashcard-${id}`);
+socket.on('flip-card', (obj) => {
+    console.log("Algume virou: id="+obj.cardId);
+    console.log(document.getElementById(obj.cardId)); 
+    const carta = document.getElementById(obj.cardId);
     carta.classList.toggle('flip');
 });
 
@@ -43,16 +44,17 @@ setInterval(() => {
 // frutas = [...frutas, ...frutas];
 
 function desenhar_cartas(frutas_id) {
-    divFlashcards.innerHTML += ``;
+    divFlashcards.innerHTML = '';
     Object.keys(frutas_id).forEach((fruta, i) => {
+        console.log(fruta);
         divFlashcards.innerHTML += `
         <div class="flashcard">
             <div class="flashcard-inner" id="flashcard-${i}" onclick="escolher_flashcard(event)" >
-                <div class="flashcard-front bg-primary" id="ff-${i}">
-                    ${fruta}
+                <div class="flashcard-front bg-primary fs-5" id="ff-${i}">
+                    ${frutas_id[fruta]}
                 </div>
                 <div class="flashcard-back bg-light" id="fb-${i}">
-                    <img src="/assets/img/fruits/${fruta}.png" alt="${fruta}">
+                    <img src="/assets/img/fruits/${frutas_id[fruta]}.png" alt="${frutas_id[fruta]}">
                 </div>
             </div>
         </div>

@@ -67,13 +67,16 @@ let frutas = [
     'melancia', 'morango', 'laranja',
     'pessego', 'mirtilos', 'kiwi', 'banana'
 ];
-frutas = [...frutas, ...frutas];
+frutas = [...frutas, ...frutas].sort(() => Math.random() - 0.5);
 let frutas_id = {};
 
 // Cria um novo ID para cada fruta
 frutas.forEach((fruta, i) => {
-    frutas_id[fruta] = i;
+    console.log(i + ': ' + fruta);
+    frutas_id[i] = fruta;
 });
+console.log('SIZE: ' + frutas.length);
+console.log('SIZE: ' + Object.keys(frutas_id).length);
 
 
 io.on("connection", async (socket) => {
@@ -166,6 +169,12 @@ io.on("connection", async (socket) => {
         // conectar ambos a sala 'gameKey'
         socket.join(gameKey);
 
+        console.log('-------------  JOIN FAZIDO ----------------');
+        io.in(gameKey).fetchSockets().then((sockets) => {
+            console.log(`Usuários na sala ${gameKey}:`, sockets.map(s => s.id));
+        });
+        console.log('-------------------------------------');
+
         // Envia as notificações para ambos os clientes
         io.to(userFrom.id).emit('accept-invite', gameKey);
         io.to(userTo.id).emit('accept-invite', gameKey);
@@ -178,6 +187,8 @@ io.on("connection", async (socket) => {
         if (!room) {
             throw new Error("Sala não encontrada.");
         }
+
+        socket.join(gameKey);
 
         console.log('room');
         console.log(room.jogadores);
@@ -199,6 +210,12 @@ io.on("connection", async (socket) => {
     // ############################# GAME CONTROLLER #############################
     socket.on('click-in-card', ([cardId, gameKey]) => {
         console.log(`Jogador ${users[sessionId].nome} clicou na carta ${cardId}`);
+        console.log('flip-card: ' + gameKey);
+        console.log('-------------  ROOOM ----------------');
+        io.in(gameKey).fetchSockets().then((sockets) => {
+            console.log(`Usuários na sala ${gameKey}:`, sockets.map(s => s.id));
+        });
+        console.log('-------------------------------------');
         io.to(gameKey).emit('flip-card', { userId: users[sessionId].userId, cardId });
     });
 
