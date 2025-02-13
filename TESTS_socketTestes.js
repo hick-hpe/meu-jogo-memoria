@@ -125,3 +125,4 @@ app.post("/logout", (req, res) => {
 httpServer.listen(port, () => {
     console.log(`Servidor rodando em: http://localhost:${port}`);
 });
+

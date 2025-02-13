@@ -1,13 +1,36 @@
+const mongoose = require('mongoose');
 const Room = require('../models/room');
 
 // Criar uma nova sala
 exports.createRoom = async (req, res) => {
     try {
-        const room = new Room(req.body);
-        await room.save();
-        res.status(201).send(room);
+        console.log("Recebendo dados:", req.body);
+
+        const { nome, dono, jogadores } = req.body;
+
+        // Validação básica
+        if (!nome || !dono) {
+            return res.status(400).json({ message: "Nome e dono da sala são obrigatórios." });
+        }
+
+        // Converter dono para ObjectId (se necessário)
+        const donoObjectId = new mongoose.Types.ObjectId(dono);
+
+        // Validar jogadores (se existirem)
+        const jogadoresObjectId = jogadores.map(id => new mongoose.Types.ObjectId(id));
+
+        const novaSala = new Room({
+            nome,
+            dono: donoObjectId,
+            jogadores: jogadoresObjectId
+        });
+
+        await novaSala.save();
+
+        res.status(201).json(novaSala);
     } catch (error) {
-        res.status(400).send(error);
+        console.error("Erro ao criar sala:", error);
+        res.status(500).json({ message: "Erro interno ao criar sala." });
     }
 };
 

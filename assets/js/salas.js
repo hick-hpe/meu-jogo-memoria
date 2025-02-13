@@ -8,43 +8,57 @@ const btnDelete = document.getElementById('btn-delete');
 const btnDeleteConfirm = document.getElementById('deletar-conta');
 
 let escolher_sala = true;
-let salas = [];
+let users_conectados;
 
-// Simulação de salas
-for (let i = 0; i < 5; i++) {
-    salas.push({
-        id: i,
-        nome: `Sala ${i + 1}`,
-        jogadores: ['pedrin']
+// Conexão com o servidor Socket.io
+const socket = io();
+
+socket.on('connect', () => {
+    console.log('Conectado ao Socket.IO');
+});
+
+socket.on('disconnect', () => {
+    console.log('Desconectado do Socket.IO');
+});
+
+socket.on('updateUsers', (users) => {
+    // Atualiza a lista de usuários conectados
+    // users_conectados = new Set(Object.keys(users));
+    users_conectados = new Set(users.map(user => user.nome));
+    console.log('users');
+    console.log(users_conectados);
+    listar_usuarios();
+});
+
+function listar_usuarios() {
+    console.log('[SIZE]: ' + users_conectados.size);
+    listaSalas.innerHTML = "";
+    users_conectados.forEach((user) => {
+        const li = document.createElement('li');
+        li.innerText = user;
+        li.classList.add('list-group-item');
+
+        // Adiciona o evento de clique para selecionar/desmarcar a sala
+        li.addEventListener('click', () => {
+            if (escolher_sala) {
+                if (li.classList.contains('active')) {
+                    // Se já está ativo, desmarca e limpa o input
+                    li.classList.remove('active');
+                    inputSalaEscolhida.value = "";
+                } else {
+                    // Remove a classe 'active' de todos os itens antes de adicionar ao novo
+                    document.querySelectorAll('li').forEach((el) => el.classList.remove('active'));
+
+                    // Adiciona a classe 'active' apenas ao item clicado
+                    li.classList.add('active');
+                    inputSalaEscolhida.value = sala.nome;
+                }
+            }
+        });
+
+        listaSalas.appendChild(li);
     });
 }
-
-// Mostra as salas disponíveis
-salas.forEach((sala) => {
-    const li = document.createElement('li');
-    li.innerText = `${sala.nome} - ${sala.jogadores[0]}`;
-    li.classList.add('list-group-item');
-
-    // Adiciona o evento de clique para selecionar/desmarcar a sala
-    li.addEventListener('click', () => {
-        if (escolher_sala) {
-            if (li.classList.contains('active')) {
-                // Se já está ativo, desmarca e limpa o input
-                li.classList.remove('active');
-                inputSalaEscolhida.value = "";
-            } else {
-                // Remove a classe 'active' de todos os itens antes de adicionar ao novo
-                document.querySelectorAll('li').forEach((el) => el.classList.remove('active'));
-
-                // Adiciona a classe 'active' apenas ao item clicado
-                li.classList.add('active');
-                inputSalaEscolhida.value = sala.nome;
-            }
-        }
-    });
-
-    listaSalas.appendChild(li);
-});
 
 // Evento do botão jogar
 btnJogar.addEventListener('click', () => {
@@ -105,7 +119,6 @@ btnSave.addEventListener('click', async (e) => {
     }
 });
 
-
 // Botão de deletar
 btnDelete.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -114,7 +127,6 @@ btnDelete.addEventListener('click', async (e) => {
 });
 
 btnDeleteConfirm.addEventListener('click', excluir_conta);
-
 async function excluir_conta() {
     try {
         // Obter o ID do usuário do campo hidden
