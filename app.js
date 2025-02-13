@@ -60,6 +60,22 @@ const SESSION_RELOAD_INTERVAL = 60 * 1000;
 // Armazena usuários conectados
 const users = {};
 
+// Game datas
+let frutas = [
+    'abacaxi', 'pera', 'uva',
+    'apple', 'cereja', 'abacate',
+    'melancia', 'morango', 'laranja',
+    'pessego', 'mirtilos', 'kiwi', 'banana'
+];
+frutas = [...frutas, ...frutas];
+let frutas_id = {};
+
+// Cria um novo ID para cada fruta
+frutas.forEach((fruta, i) => {
+    frutas_id[fruta] = i;
+});
+
+
 io.on("connection", async (socket) => {
     console.log('connection with SocketIO');
     const session = socket.request.session;
@@ -147,8 +163,8 @@ io.on("connection", async (socket) => {
 
         await newRoom.save();
 
-        // return res.status(201).json({ message: "Sala criada com sucesso!", roomId: newRoom._id, gameKey });
-
+        // conectar ambos a sala 'gameKey'
+        socket.join(gameKey);
 
         // Envia as notificações para ambos os clientes
         io.to(userFrom.id).emit('accept-invite', gameKey);
@@ -174,9 +190,16 @@ io.on("connection", async (socket) => {
 
         const info = {
             jogador1: jogador1.nome,
-            jogador2: jogador2.nome
+            jogador2: jogador2.nome,
+            frutas_id
         }
         io.to(sessionId).emit('get-info', info);
+    });
+
+    // ############################# GAME CONTROLLER #############################
+    socket.on('click-in-card', ([cardId, gameKey]) => {
+        console.log(`Jogador ${users[sessionId].nome} clicou na carta ${cardId}`);
+        io.to(gameKey).emit('flip-card', { userId: users[sessionId].userId, cardId });
     });
 
 

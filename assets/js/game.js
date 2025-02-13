@@ -15,6 +15,13 @@ socket.on('get-info', (info) => {
     spanJogador1.innerHTML = info.jogador1;
     spanJogador2.innerHTML = info.jogador2;
     vezJogador.innerHTML = info.jogador1;
+    desenhar_cartas(info.frutas_id);
+});
+
+socket.on('flip-card', (id) => {
+    alert("Algume virou")
+    const carta = document.getElementById(`flashcard-${id}`);
+    carta.classList.toggle('flip');
 });
 
 // Configurações inicias
@@ -24,28 +31,25 @@ setInterval(() => {
         divAvisoPrevio.innerHTML = "Jogar!!!";
         return;
     }
-    divAvisoPrevio.innerHTML = `Começando em ${MAX_TEMPO_PREVIO/1000}...`;
+    divAvisoPrevio.innerHTML = `Começando em ${MAX_TEMPO_PREVIO / 1000}...`;
     MAX_TEMPO_PREVIO -= 1000;
     console.log('object');
 }, 1000);
 
-let frutas = [
-    'abacaxi', 'pera', 'uva',
-    'apple', 'cereja', 'abacate',
-    'melancia', 'morango', 'laranja',
-    'pessego', 'mirtilos', 'kiwi', 'banana'
-];
 
-frutas = [...frutas, ...frutas];
+// ######################### PASSAR PARA O SERVIDOR(???) #########################
+// frutas - [OK]
 
-function desenhar_cartas() {
+// frutas = [...frutas, ...frutas];
+
+function desenhar_cartas(frutas_id) {
     divFlashcards.innerHTML += ``;
-    frutas.forEach((fruta, i) => {
+    Object.keys(frutas_id).forEach((fruta, i) => {
         divFlashcards.innerHTML += `
         <div class="flashcard">
             <div class="flashcard-inner" id="flashcard-${i}" onclick="escolher_flashcard(event)" >
                 <div class="flashcard-front bg-primary" id="ff-${i}">
-                    <!-- ${fruta} -->
+                    ${fruta}
                 </div>
                 <div class="flashcard-back bg-light" id="fb-${i}">
                     <img src="/assets/img/fruits/${fruta}.png" alt="${fruta}">
@@ -55,7 +59,12 @@ function desenhar_cartas() {
         `;
     });
 }
-desenhar_cartas();
 
-function escolher_flashcard(e) {}
+function escolher_flashcard(e) {
+    const flashcard = e.target.closest('.flashcard-inner');
 
+    if (!flashcard) return; // Se não encontrou o elemento, interrompe a execução
+
+    // Enviar o ID do flashcard para o servidor
+    socket.emit('click-in-card', [flashcard.id, window.location.href.split('/').pop()]);
+}
