@@ -7,15 +7,18 @@ const RoomSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    dono: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
     jogadores: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }]
+    }],
+    acertosJogador1: {
+        type: Number,
+        default: 0
+    },
+    acertosJogador2: {
+        type: Number,
+        default: 0
+    }
 });
 
 // Criar o modelo baseado no esquema

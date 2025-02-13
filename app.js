@@ -11,6 +11,8 @@ const connectDB = require('./config/db'); // Importa a função para conectar ao
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const User = require('./models/User');
+const Room = require('./models/room');
+const crypto = require('crypto');
 
 // Inicializa o Express
 const app = express();
@@ -20,9 +22,10 @@ const httpServer = createServer(app);
 app.use(express.json());
 
 // Middleware para processar arquivos estáticos
-app.set('views', path.join(__dirname, 'views'));
+app.set('views engine', 'ejs');
 app.use('/views', express.static(path.join(__dirname, 'views')));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 
 // Configura a conexão com o banco de dados
 connectDB();
@@ -122,11 +125,60 @@ io.on("connection", async (socket) => {
         io.to(userTo.id).emit('cancel-invite');
     });
 
-    socket.on('accept-invite', ({ userFrom, userTo }) => {
+    socket.on('accept-invite', async ({ userFrom, userTo }) => {
         console.log(`Aceitando convite de ${userFrom.nome} para ${userTo.nome}`);
-        io.to(userFrom.id).emit('accept-invite', { userFrom, userTo });
-        io.to(userTo.id).emit('accept-invite', { userFrom, userTo });
+
+        // Criar uma sala protegida para os jogadores
+        const jogador1 = await User.findOne({ nome: userFrom.nome });
+        const jogador2 = await User.findOne({ nome: userTo.nome });
+
+        if (!jogador1 || !jogador2) {
+            return res.status(404).json({ error: "Um ou ambos os jogadores não foram encontrados." });
+        }
+
+        console.log('Criando sala...');
+        const gameKey = crypto.createHash('sha256').update(jogador1.nome + jogador2.nome + Date.now()).digest('hex');
+        console.log('gameKey: ' + gameKey);
+
+        const newRoom = new Room({
+            nome: gameKey,
+            jogadores: [jogador1, jogador2]
+        });
+
+        await newRoom.save();
+
+        // return res.status(201).json({ message: "Sala criada com sucesso!", roomId: newRoom._id, gameKey });
+
+
+        // Envia as notificações para ambos os clientes
+        io.to(userFrom.id).emit('accept-invite', gameKey);
+        io.to(userTo.id).emit('accept-invite', gameKey);
     });
+
+    socket.on('get-info', async (gameKey) => {
+        console.log('--- INICIANDO PARTIDA ---');
+        const room = await Room.findOne({ nome: gameKey });
+
+        if (!room) {
+            throw new Error("Sala não encontrada.");
+        }
+
+        console.log('room');
+        console.log(room.jogadores);
+        const idJogador1 = room.jogadores[0];
+        const idJogador2 = room.jogadores[1];
+        const jogador1 = await User.findById(idJogador1);
+        const jogador2 = await User.findById(idJogador2);
+        console.log('jogador1: ' + jogador1.nome);
+        console.log('jogador2: ' + jogador2.nome);
+
+        const info = {
+            jogador1: jogador1.nome,
+            jogador2: jogador2.nome
+        }
+        io.to(sessionId).emit('get-info', info);
+    });
+
 
     socket.on("disconnect", () => {
         console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);

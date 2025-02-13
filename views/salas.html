@@ -99,6 +99,33 @@
     <a href="/auth/logout/" class="btn btn-primary position-absolute top-0 start-0 mt-3 ms-3"><i
             class="bi bi-caret-left-fill"></i> Voltar</a>
 
+    <!-- Button trigger modal -->
+    <button style="height: 50px; width: 50px;" type="button" class="btn btn-secondary position-absolute bottom-0 end-0 mb-2 me-2 fs-3" data-bs-toggle="modal" data-bs-target="#comoJogar">
+        ?
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="comoJogar" tabindex="-1" aria-labelledby="comoJogarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="comoJogarLabel">Como Jogar???</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ol>
+                        <li>Vire as cartas</li>
+                        <li>Encontre mais pares de frutas que seu adversário</li>
+                        <li><i>Nota: não recarregue a página: isto desconectará ambos jogadores da partida!(eu acho)</i></li>
+                    </ol>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>

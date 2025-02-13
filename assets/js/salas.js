@@ -63,19 +63,19 @@ socket.on('cancel-invite', () => {
     btnJogar.innerHTML = `Jogar`;
 });
 
-socket.on('accept-invite', () => {
+socket.on('accept-invite', (gameKey) => {
     // alert("------------------- INICIAR JOGO -------------------");
     divMensagemConvite.style.color = 'green';
     divMensagemConvite.innerText = 'Convite aceito :) !!!';
     setTimeout(() => {
         divMensagemConvite.innerText = '';
         divMensagemConvite.style.color = 'black';
+        window.location.href = '/game/' + gameKey;
     }, 3000);
     clearInterval(interval_convite);
     fechar_modal_convite();
     escolher_sala = true;
     btnJogar.innerHTML = `Jogar`;
-
 });
 
 function listar_usuarios() {

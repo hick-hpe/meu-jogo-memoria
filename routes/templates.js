@@ -14,8 +14,13 @@ router.get('/salas', authMiddleware, (req, res) => {
 });
 
 // Rota para o arquivo game.html
-router.get('/game', authMiddleware, (req, res) => {
+router.get('/game/:key', authMiddleware, (req, res) => {
+    console.log('ID Connected: ' + req.session.userId);
     res.sendFile(path.resolve(__dirname, '../views/game.html'));
 });
+
+// router.get('/game/:key/', authMiddleware, (req, res) => {
+//     s
+// });
 
 module.exports = router;
