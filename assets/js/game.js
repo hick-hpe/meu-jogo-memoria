@@ -15,13 +15,15 @@ let eu = '';
 let fimDeJogo = true;
 let interval_contagem_regressiva;
 
-const socket = io();
+const socket = io(`/${window.location.href.split('/').pop()}`);
 socket.on('connect', () => {
+    alert("sera???")
     const gameKey = window.location.href.split('/').pop();
     socket.emit('get-info', gameKey);
 });
 
 socket.on('get-info', (info) => {
+    alert("VEIOOOOOOOO");
     spanJogador1.innerHTML = info.jogador1;
     spanJogador2.innerHTML = info.jogador2;
     vezJogador.innerHTML = info.jogador1;

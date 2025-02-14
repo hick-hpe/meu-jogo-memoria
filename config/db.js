@@ -20,7 +20,6 @@ const URL_CONNCETION = `mongodb+srv://${USER_DB}:${PASSWORD}@${CLUSTER}.bq0oj.mo
 // Função para conectar ao banco de dados
 const connectDB = async () => {
     try {
-        console.log("URL: " + URL_CONNCETION);
         await mongoose.connect(URL_CONNCETION);
         console.log('[CONNECT_SUCCESSFULLY] MongoDB conectado com sucesso...');
     } catch (err) {
