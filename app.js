@@ -63,9 +63,9 @@ const users = {};
 // Game datas
 let frutas = [
     'abacaxi', 'pera', 'uva',
-    'apple', 'cereja', 'abacate',
-    'melancia', 'morango', 'laranja',
-    'pessego', 'mirtilos', 'kiwi', 'banana'
+    // 'apple', 'cereja', 'abacate',
+    // 'melancia', 'morango', 'laranja',
+    // 'pessego', 'mirtilos', 'kiwi', 'banana'
 ];
 frutas = [...frutas, ...frutas].sort(() => Math.random() - 0.5);
 let frutas_id = {};
@@ -220,6 +220,8 @@ io.on("connection", async (socket) => {
 
     // ############################# GAME CONTROLLER #############################
     socket.on('click-in-card', ([cardId, gameKey]) => {
+        console.log('-------------------------- CLICK IN CARD --------------------------')
+        console.log(users[sessionId]);
         console.log(`Jogador ${users[sessionId].nome} clicou na carta ${cardId}`);
         console.log('flip-card: ' + gameKey);
 
@@ -234,21 +236,79 @@ io.on("connection", async (socket) => {
             return;
         }
 
-        if (!Array.isArray(socket.request.session.cartasViradas)) {
+        // if (!Array.isArray(socket.request.session.cartasViradas)) {
+        //     console.log('➕ Criando lista de cartas viradas...');
+        //     socket.request.session.cartasViradas = [];
+        // }
+
+        if (!Array.isArray(controllerVezJogador[gameKey].cartasViradas)) {
             console.log('➕ Criando lista de cartas viradas...');
-            socket.request.session.cartasViradas = [];
+            controllerVezJogador[gameKey].cartasViradas = [];
         }
 
+        // if (!socket.request.session.numCartasViradasJogador1 && !socket.request.session.numCartasViradasJogador2) {
+        //     console.log('��� Inicializando contador de cartas viradas...');
+        //     socket.request.session.numCartasViradasJogador1 = 0;
+        //     socket.request.session.numCartasViradasJogador2 = 0;
+        // }
+
         // Adiciona a nova carta virada
-        socket.request.session.cartasViradas.push(cardId);
-        console.log('📜 Cartas Viradas:', socket.request.session.cartasViradas);
+        controllerVezJogador[gameKey].cartasViradas.push(cardId);
+        console.log('📜 Cartas Viradas:', controllerVezJogador[gameKey].cartasViradas);
 
         // Quando duas cartas forem viradas, verifica se são um par
-        if (socket.request.session.cartasViradas.length === 2) {
-            const [carta1, carta2] = socket.request.session.cartasViradas;
+        if (controllerVezJogador[gameKey].cartasViradas.length === 2) {
+            const [carta1, carta2] = controllerVezJogador[gameKey].cartasViradas;
 
             if (frutas_id[carta1] === frutas_id[carta2]) {
                 console.log('✨ Par encontrado!');
+
+                const jogador = users[sessionId].nome;
+                controllerVezJogador[gameKey][jogador] = (controllerVezJogador[gameKey][jogador] || 0) + 2;
+
+                // verifica se ganhou
+                const j1 = controllerVezJogador[gameKey].jogador1.nome;
+                const j2 = controllerVezJogador[gameKey].jogador2.nome;
+                const p1 = controllerVezJogador[gameKey][j1] || 0;
+                const p2 = controllerVezJogador[gameKey][j2] || 0;
+                const soma = p1 + p2;
+                console.log('TOTAL: ' + frutas.length);
+                console.log('Soma: ', soma);
+                if (frutas.length === soma) {
+                    console.log('---------------------- FIM DE JOGO ----------------------')
+                    if (p1 > p2) {
+                        console.log('----------------------- VITÓRIA J1 ------------------------')
+                        console.log(`[${controllerVezJogador[gameKey].jogador1.nome}] venceu 😁 por ${p1}`);
+                        console.log(`[${controllerVezJogador[gameKey].jogador2.nome}] perdeu 😭 por ${p2}`);
+                        const data = {
+                            vencedor: controllerVezJogador[gameKey].jogador1.nome,
+                            perdedor: controllerVezJogador[gameKey].jogador2.nome,
+                        };
+
+                        setTimeout(() => {
+                            io.to(gameKey).emit('fim-de-jogo', data);
+                            return;
+                        }, 1000);
+                    } else {
+                        console.log('----------------------- VITÓRIA J2 ------------------------')
+                        console.log(`[${controllerVezJogador[gameKey].jogador2.nome}] venceu 😁 por ${p2}`);
+                        console.log(`[${controllerVezJogador[gameKey].jogador1.nome}] perdeu 😭 por ${p1}`);
+                        const data = {
+                            vencedor: controllerVezJogador[gameKey].jogador2.nome,
+                            perdedor: controllerVezJogador[gameKey].jogador1.nome,
+                        };
+
+                        setTimeout(() => {
+                            io.to(gameKey).emit('fim-de-jogo', data);
+                            return;
+                        }, 1000);
+                    }
+                }
+
+                console.log(JSON.stringify(controllerVezJogador[gameKey]));
+                console.log('--------------------------------')
+                console.log(`Pontos ${jogador}: ${controllerVezJogador[gameKey][jogador]}`);
+                io.to(gameKey).emit('pontos', [jogador, controllerVezJogador[gameKey][jogador]]);
             } else {
                 console.log('❌ Não é um par.');
 
@@ -261,18 +321,19 @@ io.on("connection", async (socket) => {
                     controllerVezJogador[gameKey].jogador1.nome;
                 controllerVezJogador[gameKey].vezJogador = VEZ_JOGADOR;
                 const data = [
-                    VEZ_JOGADOR, socket.request.session.cartasViradas,
+                    VEZ_JOGADOR, controllerVezJogador[gameKey].cartasViradas,
+
                     // atualizar os 'pontos'
                 ]
-                io.to(gameKey).emit('troca-vez',);
+                io.to(gameKey).emit('troca-vez', data);
             }
 
             // Resetar a lista para a próxima jogada
-            socket.request.session.cartasViradas = [];
+            controllerVezJogador[gameKey].cartasViradas = [];
         }
 
         // Salvar a sessão após a modificação
-        socket.request.session.save?.();
+        // socket.request.session.save?.();
 
 
         io.to(gameKey).emit('flip-card', { userId: users[sessionId].userId, cardId });
@@ -285,6 +346,7 @@ io.on("connection", async (socket) => {
 
         // Remove o usuário do objeto
         delete users[sessionId];
+
 
         // Atualiza a lista de usuários conectados
         io.emit("updateUsers", Object.values(users));

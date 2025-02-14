@@ -5,7 +5,10 @@ const spanJogador2 = document.querySelector('#jogador2');
 const cartasJogador1 = document.querySelector('#cartasJogador1');
 const cartasJogador2 = document.querySelector('#cartasJogador2');
 const vezJogador = document.querySelector('#vezJogador');
+const btnJogarNovamente = document.querySelector('#jogar-novamente');
+btnJogarNovamente.style.display = 'none';
 let eu = '';
+let fimDeJogo = false;
 
 const socket = io();
 socket.on('connect', () => {
@@ -23,12 +26,16 @@ socket.on('get-info', (info) => {
 
 socket.on('flip-card', (obj) => {
     console.log("Algume virou: id=" + obj.cardId);
-    // console.log(document.getElementById(obj.cardId));
     const carta = document.getElementById('flashcard-' + obj.cardId);
+    console.log("carta: " + carta);
     carta.classList.toggle('flip');
 });
 
 socket.on('troca-vez', ([VEZ_JOGADOR, cartasViradas]) => {
+    console.log("TROCA-VEZ");
+    console.log(VEZ_JOGADOR);
+    console.log(cartasViradas);
+    vezJogador.innerHTML = VEZ_JOGADOR;
     cartasViradas.forEach((cartasVirada) => {
         const flashcard = document.querySelector('#flashcard-' + cartasVirada);
         console.log('flashcard: => ', flashcard);
@@ -38,6 +45,25 @@ socket.on('troca-vez', ([VEZ_JOGADOR, cartasViradas]) => {
         }, 1000);
     });
 });
+
+socket.on('pontos', ([jogador, pontos]) => {
+    console.log('Pontos:' + jogador + '=' + pontos);
+    if (spanJogador1.innerHTML === jogador) {
+        cartasJogador1.innerHTML = pontos;
+    } else {
+        cartasJogador2.innerHTML = pontos;
+    }
+});
+
+socket.on('fim-de-jogo', ({ vencedor, perdedor }) => {
+    fimDeJogo = true;
+    if (vencedor === eu)
+        alert('Parabéns!!! Você venceu!!!');
+    else
+        alert(`Que pena, ${perdedor}, você perdeu!!! O vencedor foi ${vencedor}`);
+    btnJogarNovamente.style.display = '';
+});
+
 
 // Configurações inicias
 let MAX_TEMPO_PREVIO = 4000;
@@ -77,10 +103,12 @@ function desenhar_cartas(frutas_id) {
 }
 
 function escolher_flashcard(e) {
-    if (vezJogador.innerHTML == eu) {
+    if (vezJogador.innerHTML == eu && !fimDeJogo) {
         const flashcard = e.target.closest('.flashcard-inner');
 
         if (!flashcard) return; // Se não encontrou o elemento, interrompe a execução
+
+        if (flashcard.classList.contains('flip')) return;
 
         // Enviar o ID do flashcard para o servidor
         socket.emit('click-in-card', [flashcard.id.replace('flashcard-', ''), window.location.href.split('/').pop()]);
@@ -88,3 +116,5 @@ function escolher_flashcard(e) {
         alert('Você não é o jogador da vez!');
     }
 }
+
+// btnJogarNovamente.addEventListener('click', alert("Jogar Novamente"));
