@@ -62,7 +62,7 @@ const users = {};
 
 // Game datas
 let frutas = [
-    'abacaxi', 'pera', 'uva',
+    'abacaxi',// 'pera', 'uva',
     // 'apple', 'cereja', 'abacate',
     // 'melancia', 'morango', 'laranja',
     // 'pessego', 'mirtilos', 'kiwi', 'banana'
@@ -170,6 +170,7 @@ io.on("connection", async (socket) => {
 
         // conectar ambos a sala 'gameKey'
         socket.join(gameKey);
+        socket.request.session.gameKey = gameKey;
 
         console.log('-------------  JOIN FAZIDO ----------------');
         io.in(gameKey).fetchSockets().then((sockets) => {
@@ -191,6 +192,7 @@ io.on("connection", async (socket) => {
         }
 
         socket.join(gameKey);
+        users[sessionId].gameKey = gameKey;
 
         console.log('room');
         console.log(room.jogadores);
@@ -224,6 +226,7 @@ io.on("connection", async (socket) => {
         console.log(users[sessionId]);
         console.log(`Jogador ${users[sessionId].nome} clicou na carta ${cardId}`);
         console.log('flip-card: ' + gameKey);
+        users[sessionId].gameKey = gameKey;
 
         console.log('--------------  ROOM ----------------');
         io.in(gameKey).fetchSockets().then((sockets) => {
@@ -337,6 +340,24 @@ io.on("connection", async (socket) => {
 
 
         io.to(gameKey).emit('flip-card', { userId: users[sessionId].userId, cardId });
+    });
+
+
+    socket.on('reiniciar-jogo', () => {
+        console.log('-------------------------- REINICIAR JOGO --------------------------');
+        if (users[sessionId] && users[sessionId].gameKey) {
+            const gameKey = users[sessionId].gameKey;
+            const target = controllerVezJogador[gameKey].jogador1.nome === users[sessionId].nome ?
+            controllerVezJogador[gameKey].jogador2.nome :
+            controllerVezJogador[gameKey].jogador1.nome
+            socket.to(gameKey).emit('reiniciar-jogo', users[sessionId].nome);
+        } else {
+            console.log('nome');
+            console.log(users[sessionId].nome);
+            console.log('gameKey');
+            console.log(users[sessionId].gameKey);
+            console.error('❌ Erro: Usuário ou gameKey não encontrado!');
+        }        
     });
 
 

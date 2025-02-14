@@ -64,6 +64,12 @@ socket.on('fim-de-jogo', ({ vencedor, perdedor }) => {
     btnJogarNovamente.style.display = '';
 });
 
+socket.on('reiniciar-jogo', (user) => {
+    alert(user + ' quer jogar dnv!!!');
+
+});
+
+
 
 // Configurações inicias
 let MAX_TEMPO_PREVIO = 4000;
@@ -117,4 +123,9 @@ function escolher_flashcard(e) {
     }
 }
 
-// btnJogarNovamente.addEventListener('click', alert("Jogar Novamente"));
+btnJogarNovamente.addEventListener('click', () => {
+    btnJogarNovamente.disabled = true;
+    const jogador = spanJogador1.innerHTML === eu ? spanJogador2.innerHTML : spanJogador1.innerHTML;
+    btnJogarNovamente.innerHTML = `<img src="/assets/img/loading.gif" alt=""> Esperando ${jogador} aceitar...`;
+    socket.emit('reiniciar-jogo');
+});
