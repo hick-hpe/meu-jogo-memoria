@@ -2,29 +2,29 @@ const inputNome = document.querySelector('#nome');
 const inputSenha = document.querySelector('#senha');
 const btnCriar = document.querySelector('#btn-criar');
 const btnEntrar = document.querySelector('#btn-entrar');
+const showToastBtn = document.querySelector('#showToastBtn');
 
 btnCriar.addEventListener('click', criar_conta);
 btnEntrar.addEventListener('click', entrar_conta);
 
 async function criar_conta(e) {
     e.preventDefault();
-    console.log('Tentando criar...');
 
     const nome = inputNome.value.trim();
     const senha = inputSenha.value.trim();
 
     if (nome === '' || senha === '') {
-        alert('Preencha todos os campos');
+        mostrar_toast('erro', '⚠️ ERRO ⚠️ Preencha todos os campos!!!');
         return;
     }
 
     const data = await criar_usuario(nome, senha);
 
     if (data && data.username) {
-        alert('Conta criada com sucesso!');
-        window.location.href = '/salas'; // Redireciona para a tela de jogo
+        mostrar_toast('sucesso', '✅ SUCESSO ✅ Conta criada com sucesso!!!');
+        setTimeout(() => window.location.href = '/salas', 3000);
     } else {
-        alert('Erro ao criar conta! Nome de usuário pode estar em uso.');
+        mostrar_toast('erro', '⚠️ ERRO ⚠️ Erro ao criar conta! Nome de usuário pode estar em uso.');
     }
 }
 
@@ -41,34 +41,33 @@ async function criar_usuario(nome, senha) {
     try {
         const response = await fetch('/auth/register', settings);
         if (!response.ok) {
-            throw new Error(`Erro ao cadastrar usuário: ${response.status}`);
+            // throw new Error(`Erro ao cadastrar usuário: ${response.status}`);
         }
         const data = await response.json();
         return data;
     } catch (err) {
-        alert('Erro ao cadastrar usuário:' + err.message);
+        // alert('Erro ao cadastrar usuário:' + err.message);
     }
 }
 
 async function entrar_conta(e) {
     e.preventDefault();
-    console.log('Tentando entrar...');
 
     const nome = inputNome.value.trim();
     const senha = inputSenha.value.trim();
 
     if (nome === '' || senha === '') {
-        alert('Preencha todos os campos');
+        mostrar_toast('erro', '⚠️ ERRO ⚠️ Preencha todos os campos!!!');
         return;
     }
 
     const data = await entrar_usuario(nome, senha);
 
     if (data && data.username) {
-        alert('Login bem-sucedido!');
-        window.location.href = '/salas'; // Redireciona para a tela de jogo
+        mostrar_toast('sucesso', '✅ SUCESSO ✅ Login bem-sucedido!!!');
+        setTimeout(() => window.location.href = '/salas', 3000);
     } else {
-        alert('Usuário ou senha incorretos!');
+        mostrar_toast('erro', '⚠️ ERRO ⚠️ Usuário ou senha incorretos!!!');
     }
 }
 
@@ -83,16 +82,38 @@ async function entrar_usuario(nome, senha) {
 
     try {
         const response = await fetch('/auth/login', settings);
-        
+
         if (!response.ok) {
-            throw new Error('Erro ao entrar no sistema: ' + response.status);
+            // throw new Error('Erro ao entrar no sistema: ' + response.status);
         }
 
         const data = await response.json();
         return data;
     } catch (err) {
-        alert('Erro ao entrar no sistema: ' + err.message);
+        // mostrar_toast
+        // alert('Erro ao entrar no sistema: ' + err.message);
     }
 }
 
+function mostrar_toast(tipoMensagem, mensagem) {
+    // mensagem
+    const bodyToast = document.querySelector('#toastMessage .toast-body');
+    console.log('bodyToast: ' + bodyToast);
+    bodyToast.textContent = mensagem;
 
+    const toastMessage = document.getElementById('toastMessage');
+
+    if (tipoMensagem === 'sucesso') {
+        toastMessage.classList.remove('text-bg-danger');
+        toastMessage.classList.add('text-bg-success');
+    } else {
+        toastMessage.classList.remove('text-bg-success');
+        toastMessage.classList.add('text-bg-danger');
+    }
+
+    // showToastBtn
+    const toastEl = new bootstrap.Toast(toastMessage, {
+        delay: 3000 // Exibe por 5 segundos
+    });
+    toastEl.show();
+}
