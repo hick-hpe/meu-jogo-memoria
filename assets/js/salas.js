@@ -39,7 +39,7 @@ socket.on('updateUsers', (users) => {
 socket.on('invite-ply', ({ userFrom, userTo }) => {
     data = { userFrom, userTo };
     let tempo = 1000;
-    exibir_modal_convite(userFrom.nome);
+    exibir_modal_convite(userTo.nome);
     interval_convite = setInterval(() => {
         if (tempo >= TEMPO_CONVITE_ATIVO) {
             // Fechar o modal de convite

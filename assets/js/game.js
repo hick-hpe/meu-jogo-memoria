@@ -5,6 +5,7 @@ const spanJogador2 = document.querySelector('#jogador2');
 const cartasJogador1 = document.querySelector('#cartasJogador1');
 const cartasJogador2 = document.querySelector('#cartasJogador2');
 const vezJogador = document.querySelector('#vezJogador');
+let eu = '';
 
 const socket = io();
 socket.on('connect', () => {
@@ -15,14 +16,27 @@ socket.on('get-info', (info) => {
     spanJogador1.innerHTML = info.jogador1;
     spanJogador2.innerHTML = info.jogador2;
     vezJogador.innerHTML = info.jogador1;
+    eu = info.eu;
+    console.log('EU: ' + eu);
     desenhar_cartas(info.frutas_id);
 });
 
 socket.on('flip-card', (obj) => {
-    console.log("Algume virou: id="+obj.cardId);
-    console.log(document.getElementById(obj.cardId)); 
-    const carta = document.getElementById(obj.cardId);
+    console.log("Algume virou: id=" + obj.cardId);
+    // console.log(document.getElementById(obj.cardId));
+    const carta = document.getElementById('flashcard-' + obj.cardId);
     carta.classList.toggle('flip');
+});
+
+socket.on('troca-vez', ([VEZ_JOGADOR, cartasViradas]) => {
+    cartasViradas.forEach((cartasVirada) => {
+        const flashcard = document.querySelector('#flashcard-' + cartasVirada);
+        console.log('flashcard: => ', flashcard);
+        setTimeout(() => {
+            flashcard.classList.remove('flip');
+            vezJogador.innerHTML = VEZ_JOGADOR;
+        }, 1000);
+    });
 });
 
 // Configurações inicias
@@ -63,10 +77,14 @@ function desenhar_cartas(frutas_id) {
 }
 
 function escolher_flashcard(e) {
-    const flashcard = e.target.closest('.flashcard-inner');
+    if (vezJogador.innerHTML == eu) {
+        const flashcard = e.target.closest('.flashcard-inner');
 
-    if (!flashcard) return; // Se não encontrou o elemento, interrompe a execução
+        if (!flashcard) return; // Se não encontrou o elemento, interrompe a execução
 
-    // Enviar o ID do flashcard para o servidor
-    socket.emit('click-in-card', [flashcard.id, window.location.href.split('/').pop()]);
+        // Enviar o ID do flashcard para o servidor
+        socket.emit('click-in-card', [flashcard.id.replace('flashcard-', ''), window.location.href.split('/').pop()]);
+    } else {
+        alert('Você não é o jogador da vez!');
+    }
 }

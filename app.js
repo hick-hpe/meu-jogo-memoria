@@ -78,6 +78,8 @@ frutas.forEach((fruta, i) => {
 console.log('SIZE: ' + frutas.length);
 console.log('SIZE: ' + Object.keys(frutas_id).length);
 
+// Vez do Jogador
+let controllerVezJogador = {}
 
 io.on("connection", async (socket) => {
     console.log('connection with SocketIO');
@@ -199,10 +201,19 @@ io.on("connection", async (socket) => {
         console.log('jogador1: ' + jogador1.nome);
         console.log('jogador2: ' + jogador2.nome);
 
+        if (!(gameKey in controllerVezJogador)) {
+            controllerVezJogador[gameKey] = {
+                jogador1, jogador2, vezJogador: jogador1.nome
+            }
+        }
+
+        console.log('-------------- QUEM SOU EU --------------');
+        console.log(await User.findById(socket.request.session.userId));
         const info = {
             jogador1: jogador1.nome,
             jogador2: jogador2.nome,
-            frutas_id
+            frutas_id,
+            eu: socket.request.session.userId == jogador1.id ? jogador1.nome : jogador2.nome
         }
         io.to(sessionId).emit('get-info', info);
     });
@@ -211,11 +222,59 @@ io.on("connection", async (socket) => {
     socket.on('click-in-card', ([cardId, gameKey]) => {
         console.log(`Jogador ${users[sessionId].nome} clicou na carta ${cardId}`);
         console.log('flip-card: ' + gameKey);
-        console.log('-------------  ROOOM ----------------');
+
+        console.log('--------------  ROOM ----------------');
         io.in(gameKey).fetchSockets().then((sockets) => {
             console.log(`Usuários na sala ${gameKey}:`, sockets.map(s => s.id));
         });
         console.log('-------------------------------------');
+
+        if (!socket.request.session) {
+            console.error('❌ Erro: Sessão não encontrada!');
+            return;
+        }
+
+        if (!Array.isArray(socket.request.session.cartasViradas)) {
+            console.log('➕ Criando lista de cartas viradas...');
+            socket.request.session.cartasViradas = [];
+        }
+
+        // Adiciona a nova carta virada
+        socket.request.session.cartasViradas.push(cardId);
+        console.log('📜 Cartas Viradas:', socket.request.session.cartasViradas);
+
+        // Quando duas cartas forem viradas, verifica se são um par
+        if (socket.request.session.cartasViradas.length === 2) {
+            const [carta1, carta2] = socket.request.session.cartasViradas;
+
+            if (frutas_id[carta1] === frutas_id[carta2]) {
+                console.log('✨ Par encontrado!');
+            } else {
+                console.log('❌ Não é um par.');
+
+                console.log('TROCAR A VEZ DE JOGAR')
+                console.log('jog1: ' + controllerVezJogador[gameKey].jogador1.nome);
+                console.log('jog2: ' + controllerVezJogador[gameKey].jogador2.nome);
+
+                const VEZ_JOGADOR = controllerVezJogador[gameKey].vezJogador == controllerVezJogador[gameKey].jogador1.nome ?
+                    controllerVezJogador[gameKey].jogador2.nome :
+                    controllerVezJogador[gameKey].jogador1.nome;
+                controllerVezJogador[gameKey].vezJogador = VEZ_JOGADOR;
+                const data = [
+                    VEZ_JOGADOR, socket.request.session.cartasViradas,
+                    // atualizar os 'pontos'
+                ]
+                io.to(gameKey).emit('troca-vez',);
+            }
+
+            // Resetar a lista para a próxima jogada
+            socket.request.session.cartasViradas = [];
+        }
+
+        // Salvar a sessão após a modificação
+        socket.request.session.save?.();
+
+
         io.to(gameKey).emit('flip-card', { userId: users[sessionId].userId, cardId });
     });
 
