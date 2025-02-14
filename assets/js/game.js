@@ -12,7 +12,8 @@ let fimDeJogo = false;
 
 const socket = io();
 socket.on('connect', () => {
-    socket.emit('get-info', window.location.href.split('/').pop());
+    const gameKey = window.location.href.split('/').pop();
+    socket.emit('get-info', gameKey);
 });
 
 socket.on('get-info', (info) => {
@@ -69,11 +70,20 @@ socket.on('reiniciar-jogo', (user) => {
 });
 
 
-socket.on('ambos-aceitaram', () => {
-    alert('------- AMBOS ACEITARAM -------');
+socket.on('session-expired', () => {
+    alert('Sua sessão expirou, por favor refaça o login.');
+    window.location.href = '/';
 });
 
-
+socket.on('ambos-aceitaram', (frutas_id) => {
+    alert('------- AMBOS ACEITARAM -------');
+    cartasJogador1.innerHTML = 0;
+    cartasJogador2.innerHTML = 0;
+    btnJogarNovamente.innerHTML = "Jogar Novamente";
+    btnJogarNovamente.disabled = false;
+    fimDeJogo = false;
+    desenhar_cartas(frutas_id);
+});
 
 
 // Configurações inicias
@@ -102,7 +112,7 @@ function desenhar_cartas(frutas_id) {
         <div class="flashcard">
             <div class="flashcard-inner" id="flashcard-${i}" onclick="escolher_flashcard(event)" >
                 <div class="flashcard-front bg-primary fs-5" id="ff-${i}">
-                    ${frutas_id[fruta]}
+                    <!-- ${frutas_id[fruta]} -->
                 </div>
                 <div class="flashcard-back bg-light" id="fb-${i}">
                     <img src="/assets/img/fruits/${frutas_id[fruta]}.png" alt="${frutas_id[fruta]}">
@@ -122,7 +132,7 @@ function escolher_flashcard(e) {
         if (flashcard.classList.contains('flip')) return;
 
         // Enviar o ID do flashcard para o servidor
-        socket.emit('click-in-card', [flashcard.id.replace('flashcard-', ''), window.location.href.split('/').pop()]);
+        socket.emit('click-in-card', flashcard.id.replace('flashcard-', ''));
     } else {
         alert('Você não é o jogador da vez!');
     }

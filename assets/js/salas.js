@@ -78,6 +78,11 @@ socket.on('accept-invite', (gameKey) => {
     btnJogar.innerHTML = `Jogar`;
 });
 
+socket.on('session-expired', () => {
+    alert('Sua sessão expirou, por favor refaça o login.');
+    window.location.href = '/';
+});
+
 function listar_usuarios() {
     console.log('[SIZE]: ' + users_conectados.size);
     listaSalas.innerHTML = "";

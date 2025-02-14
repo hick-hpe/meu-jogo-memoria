@@ -62,21 +62,24 @@ const users = {};
 
 // Game datas
 let frutas = [
-    'abacaxi',// 'pera', 'uva',
+    'abacaxi', 'pera', 'uva',
     // 'apple', 'cereja', 'abacate',
     // 'melancia', 'morango', 'laranja',
     // 'pessego', 'mirtilos', 'kiwi', 'banana'
 ];
-frutas = [...frutas, ...frutas].sort(() => Math.random() - 0.5);
-let frutas_id = {};
+frutas = [...frutas, ...frutas];
 
-// Cria um novo ID para cada fruta
-frutas.forEach((fruta, i) => {
-    console.log(i + ': ' + fruta);
-    frutas_id[i] = fruta;
-});
-console.log('SIZE: ' + frutas.length);
-console.log('SIZE: ' + Object.keys(frutas_id).length);
+// console.log('SIZE: ' + frutas.length);
+// console.log('SIZE: ' + Object.keys(frutas_id).length);
+
+function embaralhar_frutas() { frutas.sort(() => Math.random() - 0.5) }
+function montar_frutas_id() {
+    let frutas_id = {};
+    frutas.forEach((fruta, i) => {
+        frutas_id[i] = fruta;
+    });
+    return frutas_id;
+}
 
 // Vez do Jogador
 let controllerVezJogador = {}
@@ -130,6 +133,8 @@ io.on("connection", async (socket) => {
             if (err) {
                 console.warn(`Sessão ${sessionId} expirada ou inacessível. Desconectando cliente.`);
                 socket.conn.close();
+                // avisar cliente que expirou sua sessão
+                io.to(sessionId).emit('session-expired');
             }
             console.log('reloading session');
             console.log(socket.request.session);
@@ -170,7 +175,14 @@ io.on("connection", async (socket) => {
 
         // conectar ambos a sala 'gameKey'
         socket.join(gameKey);
-        socket.request.session.gameKey = gameKey;
+        console.log("SALVAR CHAVE DE ACESSO....")
+        if (!(gameKey in users[sessionId])) {
+            users[sessionId].gameKey = gameKey;
+            console.log('SALVANDO CHAVE PARA: ' + users[sessionId].nome);
+            console.log('SAVED!! ' + users[sessionId].gameKey);
+        }
+        console.log('JOGADOR ACCESS GAME_KEY: -> ' + users[sessionId].nome);
+        console.log('SALVANDO GAME_KEY: -> ' + users[sessionId].gameKey);
 
         console.log('-------------  JOIN FAZIDO ----------------');
         io.in(gameKey).fetchSockets().then((sockets) => {
@@ -185,6 +197,9 @@ io.on("connection", async (socket) => {
 
     socket.on('get-info', async (gameKey) => {
         console.log('--- INICIANDO PARTIDA ---');
+        users[sessionId].gameKey = gameKey;
+        console.log('INICIANDO PARTIDA: -> ' + users[sessionId].gameKey);
+
         const room = await Room.findOne({ nome: gameKey });
 
         if (!room) {
@@ -192,7 +207,6 @@ io.on("connection", async (socket) => {
         }
 
         socket.join(gameKey);
-        users[sessionId].gameKey = gameKey;
 
         console.log('room');
         console.log(room.jogadores);
@@ -205,28 +219,39 @@ io.on("connection", async (socket) => {
 
         if (!(gameKey in controllerVezJogador)) {
             controllerVezJogador[gameKey] = {
-                jogador1, jogador2, vezJogador: jogador1.nome
-            }
+                jogador1,
+                jogador2,
+                vezJogador: jogador1.nome,
+                frutas_id: [] // Inicializa corretamente como array vazio
+            };
         }
+
+        // Verifica se frutas_id existe e tem elementos
+        if (!controllerVezJogador[gameKey].frutas_id || Object.keys(controllerVezJogador[gameKey].frutas_id).length === 0) {
+            embaralhar_frutas();
+        }
+
+        // Atualiza frutas_id
+        controllerVezJogador[gameKey].frutas_id = montar_frutas_id();
 
         console.log('-------------- QUEM SOU EU --------------');
         console.log(await User.findById(socket.request.session.userId));
         const info = {
             jogador1: jogador1.nome,
             jogador2: jogador2.nome,
-            frutas_id,
+            frutas_id: controllerVezJogador[gameKey].frutas_id,
             eu: socket.request.session.userId == jogador1.id ? jogador1.nome : jogador2.nome
         }
         io.to(sessionId).emit('get-info', info);
     });
 
     // ############################# GAME CONTROLLER #############################
-    socket.on('click-in-card', ([cardId, gameKey]) => {
+    socket.on('click-in-card', (cardId) => {
         console.log('-------------------------- CLICK IN CARD --------------------------')
         console.log(users[sessionId]);
         console.log(`Jogador ${users[sessionId].nome} clicou na carta ${cardId}`);
-        console.log('flip-card: ' + gameKey);
-        users[sessionId].gameKey = gameKey;
+        console.log('flip-card: ' + users[sessionId].gameKey);
+        const gameKey = users[sessionId].gameKey;
 
         console.log('--------------  ROOM ----------------');
         io.in(gameKey).fetchSockets().then((sockets) => {
@@ -263,7 +288,7 @@ io.on("connection", async (socket) => {
         if (controllerVezJogador[gameKey].cartasViradas.length === 2) {
             const [carta1, carta2] = controllerVezJogador[gameKey].cartasViradas;
 
-            if (frutas_id[carta1] === frutas_id[carta2]) {
+            if (controllerVezJogador[gameKey].frutas_id[carta1] === controllerVezJogador[gameKey].frutas_id[carta2]) {
                 console.log('✨ Par encontrado!');
 
                 const jogador = users[sessionId].nome;
@@ -338,32 +363,36 @@ io.on("connection", async (socket) => {
         // Salvar a sessão após a modificação
         // socket.request.session.save?.();
 
-
         io.to(gameKey).emit('flip-card', { userId: users[sessionId].userId, cardId });
     });
 
 
     socket.on('reiniciar-jogo', () => {
         console.log('-------------------------- REINICIAR JOGO --------------------------');
+        console.log('RESTART: nome + gameKey');
+        console.log(users[sessionId]);
         if (users[sessionId] && users[sessionId].gameKey) {
             const gameKey = users[sessionId].gameKey;
-            const target = controllerVezJogador[gameKey].jogador1.nome === users[sessionId].nome ?
-            controllerVezJogador[gameKey].jogador2.nome :
-            controllerVezJogador[gameKey].jogador1.nome
             socket.to(gameKey).emit('reiniciar-jogo', users[sessionId].nome);
         } else {
-            console.log('nome');
-            console.log(users[sessionId].nome);
-            console.log('gameKey');
-            console.log(users[sessionId].gameKey);
             console.error('❌ Erro: Usuário ou gameKey não encontrado!');
-        }        
+        }
     });
 
 
     socket.on('ambos-aceitaram', () => {
         console.log('-------------------------- AMBOS ACEITARAM --------------------------');
-        io.to(users[sessionId].gameKey).emit('ambos-aceitaram');
+        // reset datas ->  num cartas encontradas
+        const gameKey = users[sessionId].gameKey;
+        const j1 = controllerVezJogador[gameKey].jogador1.nome;
+        const j2 = controllerVezJogador[gameKey].jogador2.nome;
+        if (j1 in controllerVezJogador) controllerVezJogador[gameKey][j1] = 0;
+        if (j2 in controllerVezJogador) controllerVezJogador[gameKey][j2] = 0;
+
+        embaralhar_frutas();
+        controllerVezJogador[gameKey].frutas_id = montar_frutas_id();
+
+        io.to(users[sessionId].gameKey).emit('ambos-aceitaram', controllerVezJogador[gameKey].frutas_id);
     });
 
 
