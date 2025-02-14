@@ -9,6 +9,7 @@ const btnJogarNovamente = document.querySelector('#jogar-novamente');
 btnJogarNovamente.style.display = 'none';
 let eu = '';
 let fimDeJogo = true;
+let interval_contagem_regressiva;
 
 const socket = io();
 socket.on('connect', () => {
@@ -97,13 +98,15 @@ const MAX_TEMPO_PREVIO = 4000;
 function mostrar_contagem_regressiva(MAX_TEMPO_PREVIO) {
     divAvisoPrevio.innerHTML = '';
     let tempo = MAX_TEMPO_PREVIO;
-    setInterval(() => {
-        if (tempo <= 1000) {
+    interval_contagem_regressiva = setInterval(() => {
+        if (tempo < 1000) {
             divAvisoPrevio.innerHTML = "Jogar!!!";
+            console.log('---------------- aviso jogar ----------------')
             fimDeJogo = false;
-            return;
+            clearInterval(interval_contagem_regressiva);
         }
         divAvisoPrevio.innerHTML = `Começando em ${tempo / 1000}...`;
+        console.log('---------------- aviso tempo restante ----------------');
         tempo -= 1000;
     }, 1000);
 }
