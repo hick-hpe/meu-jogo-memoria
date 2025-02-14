@@ -31,6 +31,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 connectDB();
 
 // Configuração do middleware para processar sessões
+const MINUTOS_SESSAO = 30;
 const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET || 'chave-secreta',
     resave: false,
@@ -40,12 +41,12 @@ const sessionMiddleware = session({
         collectionName: 'sessions',
         autoRemove: 'interval',
         autoRemoveInterval: 1,
-        ttl: 60 // Tempo de vida da sessão no MongoDB (30 minutos)
+        ttl: 60 * MINUTOS_SESSAO // Tempo de vida da sessão no MongoDB (30 minutos)
     }),
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 1000 * 60 * 30 // Sessão expira em 30 minutos
+        maxAge: 1000 * 60 * MINUTOS_SESSAO // Sessão expira em 30 minutos
     }
 });
 app.use(sessionMiddleware);
@@ -62,7 +63,7 @@ const users = {};
 
 // Game datas
 let frutas = [
-    'abacaxi',// 'pera', 'uva',
+    'abacaxi', 'pera', 'uva',
     // 'apple', 'cereja', 'abacate',
     // 'melancia', 'morango', 'laranja',
     // 'pessego', 'mirtilos', 'kiwi', 'banana'

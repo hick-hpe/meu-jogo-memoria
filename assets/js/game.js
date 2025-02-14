@@ -82,33 +82,38 @@ socket.on('ambos-aceitaram', (frutas_id) => {
     cartasJogador1.innerHTML = 0;
     cartasJogador2.innerHTML = 0;
     btnJogarNovamente.style.display = "none";
-    btnJogarNovamente.innerHTML = "";
+    btnJogarNovamente.innerHTML = "Jogar Novamente";
     btnJogarNovamente.disabled = false;
     desenhar_cartas(frutas_id);
     setTimeout(() => {
         fimDeJogo = false;
         console.log('JOGARRRR');
-    }, MAX_TEMPO_PREVIO);
+    }, MAX_TEMPO_PREVIO + 1000);
     mostrar_contagem_regressiva(MAX_TEMPO_PREVIO);
 });
 
-
 // Configurações inicias
-const MAX_TEMPO_PREVIO = 4000;
+const MAX_TEMPO_PREVIO = 3000;
 function mostrar_contagem_regressiva(MAX_TEMPO_PREVIO) {
     divAvisoPrevio.innerHTML = '';
     let tempo = MAX_TEMPO_PREVIO;
+
     interval_contagem_regressiva = setInterval(() => {
-        if (tempo < 1000) {
-            divAvisoPrevio.innerHTML = "Jogar!!!";
-            console.log('---------------- aviso jogar ----------------')
-            fimDeJogo = false;
-            clearInterval(interval_contagem_regressiva);
-        }
         divAvisoPrevio.innerHTML = `Começando em ${tempo / 1000}...`;
         console.log('---------------- aviso tempo restante ----------------');
+
+        if (tempo <= 1000) {  // Corrigido: <= para garantir que exibe "Começando em 1..."
+            setTimeout(() => {
+                divAvisoPrevio.innerHTML = "Jogar!!!";
+                console.log('---------------- aviso jogar ----------------');
+                fimDeJogo = false;
+            }, 1000);
+            clearInterval(interval_contagem_regressiva);
+        }
+
         tempo -= 1000;
     }, 1000);
+
 }
 mostrar_contagem_regressiva(MAX_TEMPO_PREVIO);
 
