@@ -5,6 +5,10 @@ const spanJogador2 = document.querySelector('#jogador2');
 const cartasJogador1 = document.querySelector('#cartasJogador1');
 const cartasJogador2 = document.querySelector('#cartasJogador2');
 const vezJogador = document.querySelector('#vezJogador');
+const strongVencedor = document.querySelector('#vencedor');
+const strongPerdedor = document.querySelector('#perdedor');
+const btnAbrirModal = document.querySelector('#btn-abrir-modal');
+btnAbrirModal.style.display = 'none';
 const btnJogarNovamente = document.querySelector('#jogar-novamente');
 btnJogarNovamente.style.display = 'none';
 let eu = '';
@@ -59,10 +63,13 @@ socket.on('pontos', ([jogador, pontos]) => {
 
 socket.on('fim-de-jogo', ({ vencedor, perdedor }) => {
     fimDeJogo = true;
-    if (vencedor === eu)
-        alert('Parabéns!!! Você venceu!!!');
-    else
-        alert(`Que pena, ${perdedor}, você perdeu!!! O vencedor foi ${vencedor}`);
+    if (vencedor === eu) {
+        abrir_modal('vitoria');
+    } else {
+        strongPerdedor.innerHTML = perdedor;
+        strongVencedor.innerHTML = vencedor;
+        abrir_modal('derrota');
+    }
     btnJogarNovamente.style.display = '';
 });
 
@@ -157,6 +164,11 @@ function escolher_flashcard(e) {
     }
 }
 
+function abrir_modal(modalId) {
+    btnAbrirModal.setAttribute('data-bs-target', `#${modalId}`);
+    btnAbrirModal.click();
+}
+
 btnJogarNovamente.addEventListener('click', () => {
     if (btnJogarNovamente.innerHTML.includes('quer jogar novamente')) {
         socket.emit('ambos-aceitaram');
@@ -167,3 +179,4 @@ btnJogarNovamente.addEventListener('click', () => {
         socket.emit('reiniciar-jogo');
     }
 });
+
