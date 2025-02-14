@@ -62,7 +62,7 @@ const users = {};
 
 // Game datas
 let frutas = [
-    'abacaxi', 'pera', 'uva',
+    'abacaxi',// 'pera', 'uva',
     // 'apple', 'cereja', 'abacate',
     // 'melancia', 'morango', 'laranja',
     // 'pessego', 'mirtilos', 'kiwi', 'banana'
@@ -234,6 +234,14 @@ io.on("connection", async (socket) => {
         // Atualiza frutas_id
         controllerVezJogador[gameKey].frutas_id = montar_frutas_id();
 
+        if (!Array.isArray(controllerVezJogador[gameKey].cartasViradas)) {
+            console.log('➕ Criando lista de cartas viradas...');
+            controllerVezJogador[gameKey].cartasViradas = [];
+        }
+
+        controllerVezJogador[gameKey][jogador1.nome] = 0;
+        controllerVezJogador[gameKey][jogador2.nome] = 0;
+
         console.log('-------------- QUEM SOU EU --------------');
         console.log(await User.findById(socket.request.session.userId));
         const info = {
@@ -269,10 +277,10 @@ io.on("connection", async (socket) => {
         //     socket.request.session.cartasViradas = [];
         // }
 
-        if (!Array.isArray(controllerVezJogador[gameKey].cartasViradas)) {
-            console.log('➕ Criando lista de cartas viradas...');
-            controllerVezJogador[gameKey].cartasViradas = [];
-        }
+        // if (!Array.isArray(controllerVezJogador[gameKey].cartasViradas)) {
+        //     console.log('➕ Criando lista de cartas viradas...');
+        //     controllerVezJogador[gameKey].cartasViradas = [];
+        // }
 
         // if (!socket.request.session.numCartasViradasJogador1 && !socket.request.session.numCartasViradasJogador2) {
         //     console.log('��� Inicializando contador de cartas viradas...');
@@ -386,8 +394,11 @@ io.on("connection", async (socket) => {
         const gameKey = users[sessionId].gameKey;
         const j1 = controllerVezJogador[gameKey].jogador1.nome;
         const j2 = controllerVezJogador[gameKey].jogador2.nome;
-        if (j1 in controllerVezJogador) controllerVezJogador[gameKey][j1] = 0;
-        if (j2 in controllerVezJogador) controllerVezJogador[gameKey][j2] = 0;
+        if (j1 in controllerVezJogador[gameKey]) controllerVezJogador[gameKey][j1] = 0;
+        if (j2 in controllerVezJogador[gameKey]) controllerVezJogador[gameKey][j2] = 0;
+        console.log("-------------------------- controllerVezJogador reset --------------------------");
+        console.log(JSON.stringify(controllerVezJogador));
+        console.log("");
 
         embaralhar_frutas();
         controllerVezJogador[gameKey].frutas_id = montar_frutas_id();
@@ -398,6 +409,7 @@ io.on("connection", async (socket) => {
 
     socket.on("disconnect", () => {
         console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);
+        // console.log('Última Tela: ' + req)
         clearInterval(timer);
 
         // Remove o usuário do objeto

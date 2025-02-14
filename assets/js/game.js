@@ -8,7 +8,7 @@ const vezJogador = document.querySelector('#vezJogador');
 const btnJogarNovamente = document.querySelector('#jogar-novamente');
 btnJogarNovamente.style.display = 'none';
 let eu = '';
-let fimDeJogo = false;
+let fimDeJogo = true;
 
 const socket = io();
 socket.on('connect', () => {
@@ -76,27 +76,38 @@ socket.on('session-expired', () => {
 });
 
 socket.on('ambos-aceitaram', (frutas_id) => {
-    alert('------- AMBOS ACEITARAM -------');
+    // alert('------- AMBOS ACEITARAM -------');
+    fimDeJogo = true;
     cartasJogador1.innerHTML = 0;
     cartasJogador2.innerHTML = 0;
-    btnJogarNovamente.innerHTML = "Jogar Novamente";
+    btnJogarNovamente.style.display = "none";
+    btnJogarNovamente.innerHTML = "";
     btnJogarNovamente.disabled = false;
-    fimDeJogo = false;
     desenhar_cartas(frutas_id);
+    setTimeout(() => {
+        fimDeJogo = false;
+        console.log('JOGARRRR');
+    }, MAX_TEMPO_PREVIO);
+    mostrar_contagem_regressiva(MAX_TEMPO_PREVIO);
 });
 
 
 // Configurações inicias
-let MAX_TEMPO_PREVIO = 4000;
-setInterval(() => {
-    if (MAX_TEMPO_PREVIO < 1) {
-        divAvisoPrevio.innerHTML = "Jogar!!!";
-        return;
-    }
-    divAvisoPrevio.innerHTML = `Começando em ${MAX_TEMPO_PREVIO / 1000}...`;
-    MAX_TEMPO_PREVIO -= 1000;
-    console.log('object');
-}, 1000);
+const MAX_TEMPO_PREVIO = 4000;
+function mostrar_contagem_regressiva(MAX_TEMPO_PREVIO) {
+    divAvisoPrevio.innerHTML = '';
+    let tempo = MAX_TEMPO_PREVIO;
+    setInterval(() => {
+        if (tempo <= 1000) {
+            divAvisoPrevio.innerHTML = "Jogar!!!";
+            fimDeJogo = false;
+            return;
+        }
+        divAvisoPrevio.innerHTML = `Começando em ${tempo / 1000}...`;
+        tempo -= 1000;
+    }, 1000);
+}
+mostrar_contagem_regressiva(MAX_TEMPO_PREVIO);
 
 
 // ######################### PASSAR PARA O SERVIDOR(???) #########################
