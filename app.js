@@ -346,9 +346,15 @@ function novoNamespacePartida(gameKey) {
             clearInterval(timer);
 
             // Remove o usuário do objeto
+            console.log('----------- [DELETE] ----------------');
+            // console.log('antes:\n' + JSON.stringify(usersPartida));
+            const user = usersPartida[sessionId].nome;
             delete usersPartida[sessionId];
+            // console.log('depois:\n' + JSON.stringify(usersPartida));
 
             // avisar ao jogador2 que o jogador1 abandonou a partida
+            socket.emit('oc somioo');
+            socket.broadcast.emit('somioo', user);
         });
     });
 }

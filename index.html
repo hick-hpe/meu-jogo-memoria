@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detectar Recarregamento</title>
+</head>
+<body>
+    <h1>Teste de Recarregamento</h1>
+    <p id="status"></p>
+
+    <script>
+        // Verifica se a página foi recarregada
+        document.addEventListener("DOMContentLoaded", function () {
+            if (localStorage.getItem("recarregado") === "true") {
+                document.getElementById("status").textContent = "A página foi recarregada!";
+                localStorage.removeItem("recarregado"); // Limpa para futuras verificações
+            } else {
+                document.getElementById("status").textContent = "A página foi carregada normalmente.";
+            }
+        });
+
+        // Salva um valor antes da página ser recarregada ou fechada
+        window.addEventListener("beforeunload", function () {
+            localStorage.setItem("recarregado", "true");
+        });
+    </script>
+</body>
+</html>

@@ -17,13 +17,11 @@ let interval_contagem_regressiva;
 
 const socket = io(`/${window.location.href.split('/').pop()}`);
 socket.on('connect', () => {
-    alert("sera???")
     const gameKey = window.location.href.split('/').pop();
     socket.emit('get-info', gameKey);
 });
 
 socket.on('get-info', (info) => {
-    alert("VEIOOOOOOOO");
     spanJogador1.innerHTML = info.jogador1;
     spanJogador2.innerHTML = info.jogador2;
     vezJogador.innerHTML = info.jogador1;
@@ -79,11 +77,21 @@ socket.on('reiniciar-jogo', (user) => {
     btnJogarNovamente.innerHTML = `<i>${user}</i> quer jogar novamente`;
 });
 
-
 socket.on('session-expired', () => {
     alert('Sua sessão expirou, por favor refaça o login.');
     window.location.href = '/';
 });
+
+socket.on('somioo', (user) => {
+    // alert(`
+    //     user: ${user}
+    //     eu: ${eu}
+    // `);
+    abrir_modal('abandono');
+    // redirecionar para '/salas'
+    setTimeout(() => window.location.href = '/salas', 3000);
+});
+
 
 socket.on('ambos-aceitaram', (frutas_id) => {
     // alert('------- AMBOS ACEITARAM -------');

@@ -48,9 +48,28 @@
 
 
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" id="btn-abrir-modal" data-bs-toggle="modal" data-bs-target="#vitoria">
+    <button type="button" class="btn btn-primary" id="btn-abrir-modal" data-bs-toggle="modal"
+        data-bs-target="#abandono">
         Launch demo modal
     </button>
+
+    <!-- Modal de Abandono de partida -->
+    <div class="modal fade victory-modal" id="abandono" tabindex="-1" aria-labelledby="abandonoLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-primary">
+                <div class="modal-header bg-primary text-light">
+                    <h1 class="modal-title fs-4 w-100 text-center" id="abandonoLabel">⚠️ OPSS!!! ⚠️</h1>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-5">Não há adversários!!! <br> Busque por outros jogadores para jogar!</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <i>Você está sendo redirecionado para a tela de salas!</i>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de Vitória -->
     <div class="modal fade victory-modal" id="vitoria" tabindex="-1" aria-labelledby="vitoriaLabel" aria-hidden="true">
@@ -101,6 +120,18 @@
         crossorigin="anonymous"></script>
 
     <script src="/socket.io/socket.io.js"></script>
+
+    <!-- <script>
+        window.addEventListener("beforeunload", function (event) {
+            // Executar alguma ação antes de fechar a página
+            console.log("Usuário tentou sair!");
+
+            // Alerta padrão do navegador
+            event.preventDefault();
+            event.returnValue = "";
+        });
+
+    </script> -->
 
     <script src="/assets/js/game.js"></script>
 
