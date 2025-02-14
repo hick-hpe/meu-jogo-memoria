@@ -361,6 +361,12 @@ io.on("connection", async (socket) => {
     });
 
 
+    socket.on('ambos-aceitaram', () => {
+        console.log('-------------------------- AMBOS ACEITARAM --------------------------');
+        io.to(users[sessionId].gameKey).emit('ambos-aceitaram');
+    });
+
+
     socket.on("disconnect", () => {
         console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);
         clearInterval(timer);

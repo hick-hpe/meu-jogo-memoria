@@ -65,9 +65,14 @@ socket.on('fim-de-jogo', ({ vencedor, perdedor }) => {
 });
 
 socket.on('reiniciar-jogo', (user) => {
-    alert(user + ' quer jogar dnv!!!');
-
+    btnJogarNovamente.innerHTML = `<i>${user}</i> quer jogar novamente`;
 });
+
+
+socket.on('ambos-aceitaram', () => {
+    alert('------- AMBOS ACEITARAM -------');
+});
+
 
 
 
@@ -124,8 +129,12 @@ function escolher_flashcard(e) {
 }
 
 btnJogarNovamente.addEventListener('click', () => {
-    btnJogarNovamente.disabled = true;
-    const jogador = spanJogador1.innerHTML === eu ? spanJogador2.innerHTML : spanJogador1.innerHTML;
-    btnJogarNovamente.innerHTML = `<img src="/assets/img/loading.gif" alt=""> Esperando ${jogador} aceitar...`;
-    socket.emit('reiniciar-jogo');
+    if (btnJogarNovamente.innerHTML.includes('quer jogar novamente')) {
+        socket.emit('ambos-aceitaram');
+    } else {
+        btnJogarNovamente.disabled = true;
+        const jogador = spanJogador1.innerHTML === eu ? spanJogador2.innerHTML : spanJogador1.innerHTML;
+        btnJogarNovamente.innerHTML = `<img src="/assets/img/loading.gif" alt=""> Esperando <i>${jogador}</i> aceitar...`;
+        socket.emit('reiniciar-jogo');
+    }
 });
