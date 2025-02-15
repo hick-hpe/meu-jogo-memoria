@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Room = require('../models/room');
+const Room = require('../models/Room');
 
 // Criar uma nova sala
 exports.createRoom = async (req, res) => {

@@ -11,7 +11,7 @@ const connectDB = require('./config/db'); // Importa a função para conectar ao
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const User = require('./models/User');
-const Room = require('./models/room');
+const Room = require('./models/Room');
 const crypto = require('crypto');
 
 // Inicializa o Express
