@@ -32,6 +32,10 @@
 
             <div>Vez do jogador: <strong id="vezJogador"></strong></div>
             <div id="aviso-previo" class="p-2"></div>
+            <div class="container-tempo-jogada">
+                <div id="barra-jogada"></div>
+                <div id="tempo-jogada">5s</div>
+            </div>
 
             <input type="hidden" id="jogador1" value="jogador1">
             <input type="hidden" id="jogador2" value="jogador2">
@@ -40,6 +44,15 @@
             <button class="btn btn-primary px-3" id="jogar-novamente">Jogar Novamente</button>
         </div>
     </div>
+
+    <script>const barraJogada = document.querySelector('#barra-jogada');
+        const tempoJogada = document.querySelector('#tempo-jogada');
+        
+        let tempo = 1000;
+        setInterval(() => {
+            tempoJogada.innerHTML = 'Tempo: ' + (tempo/1000);
+            // barra.innerHTML = 'Barra: ' +
+        }, 5000);</script>
 
     <div class="mt-5 container shadow-bg-info text-light" id="flashcards"></div>
 

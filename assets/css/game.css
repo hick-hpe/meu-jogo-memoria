@@ -106,6 +106,37 @@ img {
     transform: translateY(0);
 }
 
+.container-tempo-jogada {
+    background-color: gray;
+    position: relative;
+    border-radius: 10px;
+}
+
+#barra-jogada {
+    background-color: rgb(252, 48, 48);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 25px;
+    animation: decreaseWidth 1s linear;
+    border-radius: 10px;
+}
+
+#tempo-jogada {
+    position: absolute;
+    top: 0;
+    left: 50%;
+}
+
+@keyframes decreaseWidth {
+    0% {
+        width: 100%;
+    }
+    100% {
+        width: 0%;
+    }
+}
+
 @media (max-width: 576px) {
 
     /* Breakpoint sm */

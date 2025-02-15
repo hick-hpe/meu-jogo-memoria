@@ -176,6 +176,7 @@ function novoNamespacePartida(gameKey) {
                         jogador1,
                         jogador2,
                         vezJogador: jogador1.nome,
+                        ultimoVencedor: '',
                         frutas_id: [] // Inicializa corretamente como array vazio
                     };
                 }
@@ -256,10 +257,13 @@ function novoNamespacePartida(gameKey) {
                             console.log('----------------------- VITÓRIA J1 ------------------------')
                             console.log(`[${controllerVezJogador[gameKey].jogador1.nome}] venceu 😁 por ${p1}`);
                             console.log(`[${controllerVezJogador[gameKey].jogador2.nome}] perdeu 😭 por ${p2}`);
+                            
                             const data = {
                                 vencedor: controllerVezJogador[gameKey].jogador1.nome,
                                 perdedor: controllerVezJogador[gameKey].jogador2.nome,
                             };
+
+                            controllerVezJogador[gameKey].ultimoVencedor = controllerVezJogador[gameKey].jogador1.nome;
 
                             setTimeout(() => {
                                 gameNamespace.to(gameKey).emit('fim-de-jogo', data);
@@ -269,10 +273,13 @@ function novoNamespacePartida(gameKey) {
                             console.log('----------------------- VITÓRIA J2 ------------------------')
                             console.log(`[${controllerVezJogador[gameKey].jogador2.nome}] venceu 😁 por ${p2}`);
                             console.log(`[${controllerVezJogador[gameKey].jogador1.nome}] perdeu 😭 por ${p1}`);
+                            
                             const data = {
                                 vencedor: controllerVezJogador[gameKey].jogador2.nome,
                                 perdedor: controllerVezJogador[gameKey].jogador1.nome,
                             };
+
+                            controllerVezJogador[gameKey].ultimoVencedor = controllerVezJogador[gameKey].jogador2.nome;
 
                             setTimeout(() => {
                                 gameNamespace.to(gameKey).emit('fim-de-jogo', data);
@@ -333,6 +340,7 @@ function novoNamespacePartida(gameKey) {
             const j2 = controllerVezJogador[gameKey].jogador2.nome;
             if (j1 in controllerVezJogador[gameKey]) controllerVezJogador[gameKey][j1] = 0;
             if (j2 in controllerVezJogador[gameKey]) controllerVezJogador[gameKey][j2] = 0;
+            controllerVezJogador[gameKey].vezJogador = controllerVezJogador[gameKey].ultimoVencedor;
             console.log("-------------------------- controllerVezJogador reset --------------------------");
             console.log(JSON.stringify(controllerVezJogador));
             console.log("");

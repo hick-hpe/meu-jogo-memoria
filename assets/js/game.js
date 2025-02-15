@@ -12,16 +12,29 @@ btnAbrirModal.style.display = 'none';
 const btnJogarNovamente = document.querySelector('#jogar-novamente');
 btnJogarNovamente.style.display = 'none';
 const btnTheme = document.querySelector('#toggle-theme');
+// const barraJogada = document.querySelector('#barra-jogada');
+// const tempoJogada = document.querySelector('#tempo-jogada');
+
+// let tempo = 1000;
+// setInterval(() => {
+//     tempoJogada.innerHTML = 'Tempo: ' + (tempo/1000);
+//     // barra.innerHTML = 'Barra: ' +
+// }, 5000);
+
 let eu = '';
 let fimDeJogo = true;
 let interval_contagem_regressiva;
+let interval_tempo_jogada;
+let realizou_jogada = 0;
+const MAX_TEMPO_PREVIO = 3000;
+const MAX_TEMPO_JOGADA = 5000;
 
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("recarregado") === "true") {
         localStorage.removeItem("recarregado");
-        abrir_modal('abandonoMe');
+        // abrir_modal('abandonoMe');
         // redirecionar para '/salas'
-        setTimeout(() => window.location.href = '/salas', 3000);
+        // setTimeout(() => window.location.href = '/salas', 3000);
     }
 });
 
@@ -44,6 +57,11 @@ socket.on('get-info', (info) => {
     eu = info.eu;
     console.log('EU: ' + eu);
     desenhar_cartas(info.frutas_id);
+    
+    // comecar contar MAX_TEMPO_JOGADA
+    interval_tempo_jogada = setInterval(() => {
+        // 
+    }, MAX_TEMPO_JOGADA);
 });
 
 socket.on('flip-card', (obj) => {
@@ -131,7 +149,6 @@ socket.on('nao-achou-par', () => {
 
 
 // Configurações inicias
-const MAX_TEMPO_PREVIO = 3000;
 function mostrar_contagem_regressiva(MAX_TEMPO_PREVIO) {
     divAvisoPrevio.innerHTML = '';
     let tempo = MAX_TEMPO_PREVIO;
