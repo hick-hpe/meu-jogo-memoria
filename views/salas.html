@@ -37,7 +37,6 @@
                 readonly>
             <button class="btn btn-success p-2 w-50" id="btn-jogar">Jogar</button>
         </div>
-        <div class="text-center" id="mensagem-convite"></div>
     </div>
 
     <button type="button" id="btn-abrir-modal" class="btn btn-primary d-none" data-bs-toggle="modal"
@@ -125,6 +124,21 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">OK</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão para exibir o Toast -->
+    <button type="button" class="btn btn-danger d-none" id="showToastBtn">Exibir Erro</button>
+
+    <!-- Container para o Toast -->
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+        <div id="toastMessage" class="toast align-items-center border-0" role="alert" aria-live="polite"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Uai</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Fechar"></button>
             </div>
         </div>
     </div>

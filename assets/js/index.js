@@ -3,9 +3,33 @@ const inputSenha = document.querySelector('#senha');
 const btnCriar = document.querySelector('#btn-criar');
 const btnEntrar = document.querySelector('#btn-entrar');
 const showToastBtn = document.querySelector('#showToastBtn');
+const btnTheme = document.querySelector('#toggle-theme');
 
 btnCriar.addEventListener('click', criar_conta);
 btnEntrar.addEventListener('click', entrar_conta);
+btnTheme.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    theme();
+})
+
+function theme() {
+    if (btnTheme.classList.contains('btn-dark')) {
+        btnTheme.classList.remove('btn-dark');
+        btnTheme.classList.add('btn-light');
+    } else {
+        btnTheme.classList.remove('btn-light');
+        btnTheme.classList.add('btn-dark');
+    }
+
+    const icon = btnTheme.querySelector('.bi');
+    if (icon) {
+        icon.classList.toggle('bi-moon-fill');
+        icon.classList.toggle('bi-brightness-high-fill');
+        icon.classList.toggle('text-light');
+        icon.classList.toggle('text-dark');
+    }
+}
+theme();
 
 async function criar_conta(e) {
     e.preventDefault();

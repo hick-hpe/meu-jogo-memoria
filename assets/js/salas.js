@@ -8,7 +8,6 @@ const btnSave = document.getElementById('btn-save');
 const btnDelete = document.getElementById('btn-delete');
 const btnDeleteConfirm = document.getElementById('deletar-conta');
 const btnAcceptGame = document.getElementById('accept-invite');
-const divMensagemConvite = document.getElementById('mensagem-convite');
 
 let escolher_sala = true;
 let usersCurrent = [];
@@ -56,26 +55,14 @@ socket.on('invite-ply', ({ userFrom, userTo }) => {
 });
 
 socket.on('cancel-invite', () => {
-    // alert('---------------- PEDIDO RECUSADO ----------------');
-    divMensagemConvite.style.color = 'red';
-    divMensagemConvite.innerText = 'Pedido recusada :( !!!';
-    setTimeout(() => {
-        divMensagemConvite.innerText = '';
-        divMensagemConvite.style.color = 'black';
-    }, 3000);
+    mostrar_toast('erro', 'Pedido recusado 😫');
     escolher_sala = true;
     btnJogar.innerHTML = `Jogar`;
 });
 
 socket.on('accept-invite', (gameKey) => {
-    // alert("------------------- INICIAR JOGO -------------------");
-    divMensagemConvite.style.color = 'green';
-    divMensagemConvite.innerText = 'Convite aceito :) !!!';
-    setTimeout(() => {
-        divMensagemConvite.innerText = '';
-        divMensagemConvite.style.color = 'black';
-        window.location.href = '/game/' + gameKey;
-    }, 3000);
+    mostrar_toast('sucesso', 'Convite aceito 😁');
+    setTimeout(() => window.location.href = '/game/' + gameKey, 3000);
     clearInterval(interval_convite);
     fechar_modal_convite();
     escolher_sala = true;
@@ -162,7 +149,7 @@ btnAcceptGame.addEventListener('click', () => {
 btnJogar.addEventListener('click', () => {
     if (btnJogar.textContent === "Jogar") {
         if (!inputSalaEscolhida.value) {
-            alert("Escolha uma sala para jogar!!!");
+            mostrar_toast("erro", "Escolha uma sala para jogar!!!");
             return;
         }
 
@@ -184,37 +171,34 @@ btnClose.addEventListener('click', () => {
     socket.emit('cancel-invite', data);
 });
 
-btnSave.addEventListener('click', async (e) => {
+btnSave.addEventListener("click", async (e) => {
     e.preventDefault();
-    console.log('Atualizar nome');
+    console.log("Tentando atualizar nome...");
 
     try {
-        // Obter o ID do usuário do campo hidden
-        const userId = document.getElementById('userId').value;
-
-        // Obter o novo nome a ser atualizado
+        const userId = document.getElementById("userId").value;
         const newName = inputUsername.value;
 
-        // Fazer a requisição para atualizar o nome
         const response = await fetch(`/api/users/${userId}`, {
-            method: 'PUT', // ou 'PATCH' dependendo da sua lógica
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                nome: newName
-            })
+            body: JSON.stringify({ nome: newName })
         });
 
+        const data = await response.json();
+
         if (response.ok) {
-            console.log('Nome atualizado com sucesso!');
+            mostrar_toast("sucesso", "Nome atualizado com sucesso!");
         } else {
-            console.error('Erro ao atualizar nome:', await response.text());
+            mostrar_toast("erro", data.error || "Erro ao atualizar nome!");
         }
     } catch (e) {
-        console.error('Erro ao atualizar nome:', e);
+        console.error("Erro ao atualizar nome:", e);
     }
 });
+
 
 // Botão de deletar
 btnDelete.addEventListener('click', async (e) => {
@@ -286,4 +270,26 @@ async function get_and_set_username() {
 }
 get_and_set_username();
 
+function mostrar_toast(tipoMensagem, mensagem) {
+    // mensagem
+    const bodyToast = document.querySelector('#toastMessage .toast-body');
+    console.log('bodyToast: ' + bodyToast);
+    bodyToast.textContent = mensagem;
+
+    const toastMessage = document.getElementById('toastMessage');
+
+    if (tipoMensagem === 'sucesso') {
+        toastMessage.classList.remove('text-bg-danger');
+        toastMessage.classList.add('text-bg-success');
+    } else {
+        toastMessage.classList.remove('text-bg-success');
+        toastMessage.classList.add('text-bg-danger');
+    }
+
+    // showToastBtn
+    const toastEl = new bootstrap.Toast(toastMessage, {
+        delay: 2000 // Exibe por 5 segundos
+    });
+    toastEl.show();
+}
 

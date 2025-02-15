@@ -64,9 +64,9 @@ const users = {};
 // Game datas
 let frutas = [
     'abacaxi', 'pera', 'uva',
-    // 'apple', 'cereja', 'abacate',
-    // 'melancia', 'morango', 'laranja',
-    // 'pessego', 'mirtilos', 'kiwi', 'banana'
+    'apple', 'cereja', 'abacate',
+    'melancia', 'morango', 'laranja',
+    'pessego', 'mirtilos', 'kiwi', 'banana'
 ];
 frutas = [...frutas, ...frutas];
 
@@ -298,7 +298,7 @@ function novoNamespacePartida(gameKey) {
                     const data = [
                         VEZ_JOGADOR, controllerVezJogador[gameKey].cartasViradas,
                     ];
-                    
+
                     socket.emit('nao-achou-par');
                     gameNamespace.to(gameKey).emit('troca-vez', data);
                 }

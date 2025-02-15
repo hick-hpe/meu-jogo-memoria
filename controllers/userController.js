@@ -37,15 +37,27 @@ exports.getUser = async (req, res) => {
 // Atualizar um usuário
 exports.updateUser = async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!user) {
-            return res.status(404).send(user);
+        const { nome } = req.body;
+        const userId = req.params.id;
+
+        // Verificar se já existe um usuário com esse nome (excluindo o próprio usuário)
+        const existingUser = await User.findOne({ nome, _id: { $ne: userId } });
+        if (existingUser) {
+            return res.status(400).json({ error: "Já existe um usuário com esse nome!" });
         }
-        res.status(200).send(user);
+
+        // Atualizar o usuário
+        const user = await User.findByIdAndUpdate(userId, req.body, { new: true });
+        if (!user) {
+            return res.status(404).json({ error: "Usuário não encontrado!" });
+        }
+
+        res.status(200).json(user);
     } catch (error) {
-        res.status(400).send(error);
+        res.status(400).json({ error: "Erro ao atualizar usuário!" });
     }
 };
+
 
 // Deletar um usuário
 exports.deleteUser = async (req, res) => {
