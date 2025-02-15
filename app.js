@@ -64,10 +64,10 @@ const users = {};
 
 // Game datas
 let frutas = [
-    'abacaxi', //'pera', 'uva',
-    // 'apple', 'cereja', 'abacate',
-    // 'melancia', 'morango', 'laranja',
-    // 'pessego', 'mirtilos', 'kiwi', 'banana'
+    'abacaxi', 'pera', 'uva',
+    'apple', 'cereja', 'abacate',
+    'melancia', 'morango', 'laranja',
+    'pessego', 'mirtilos', 'kiwi', 'banana'
 ];
 frutas = [...frutas, ...frutas];
 
