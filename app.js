@@ -33,7 +33,7 @@ connectDB();
 // Configuração do middleware para processar sessões
 const MINUTOS_SESSAO = 30;
 const sessionMiddleware = session({
-    secret: process.env.SESSION_SECRET || 'chave-secreta',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -51,6 +51,7 @@ const sessionMiddleware = session({
 });
 app.use(sessionMiddleware);
 
+
 // Configuração do Socket.IO
 const io = new Server(httpServer);
 io.engine.use(sessionMiddleware);
@@ -63,10 +64,10 @@ const users = {};
 
 // Game datas
 let frutas = [
-    'abacaxi', 'pera', 'uva',
-    'apple', 'cereja', 'abacate',
-    'melancia', 'morango', 'laranja',
-    'pessego', 'mirtilos', 'kiwi', 'banana'
+    'abacaxi', //'pera', 'uva',
+    // 'apple', 'cereja', 'abacate',
+    // 'melancia', 'morango', 'laranja',
+    // 'pessego', 'mirtilos', 'kiwi', 'banana'
 ];
 frutas = [...frutas, ...frutas];
 
@@ -157,54 +158,54 @@ function novoNamespacePartida(gameKey) {
             const room = await Room.findOne({ nome: gameKey });
 
             if (!room) {
-                throw new Error("Sala não encontrada.");
+                console.log("Sala não encontrada.");
+            } else {
+                socket.join(gameKey);
+
+                console.log('room');
+                console.log(room.jogadores);
+                const idJogador1 = room.jogadores[0];
+                const idJogador2 = room.jogadores[1];
+                const jogador1 = await User.findById(idJogador1);
+                const jogador2 = await User.findById(idJogador2);
+                console.log('jogador1: ' + jogador1.nome);
+                console.log('jogador2: ' + jogador2.nome);
+
+                if (!(gameKey in controllerVezJogador)) {
+                    controllerVezJogador[gameKey] = {
+                        jogador1,
+                        jogador2,
+                        vezJogador: jogador1.nome,
+                        frutas_id: [] // Inicializa corretamente como array vazio
+                    };
+                }
+
+                // Verifica se frutas_id existe e tem elementos
+                if (!controllerVezJogador[gameKey].frutas_id || Object.keys(controllerVezJogador[gameKey].frutas_id).length === 0) {
+                    embaralhar_frutas();
+                }
+
+                // Atualiza frutas_id
+                controllerVezJogador[gameKey].frutas_id = montar_frutas_id();
+
+                if (!Array.isArray(controllerVezJogador[gameKey].cartasViradas)) {
+                    console.log('➕ Criando lista de cartas viradas...');
+                    controllerVezJogador[gameKey].cartasViradas = [];
+                }
+
+                controllerVezJogador[gameKey][jogador1.nome] = 0;
+                controllerVezJogador[gameKey][jogador2.nome] = 0;
+
+                console.log('-------------- QUEM SOU EU --------------');
+                console.log(await User.findById(socket.request.session.userId));
+                const info = {
+                    jogador1: jogador1.nome,
+                    jogador2: jogador2.nome,
+                    frutas_id: controllerVezJogador[gameKey].frutas_id,
+                    eu: socket.request.session.userId == jogador1.id ? jogador1.nome : jogador2.nome
+                }
+                gameNamespace.to(sessionId).emit('get-info', info);
             }
-
-            socket.join(gameKey);
-
-            console.log('room');
-            console.log(room.jogadores);
-            const idJogador1 = room.jogadores[0];
-            const idJogador2 = room.jogadores[1];
-            const jogador1 = await User.findById(idJogador1);
-            const jogador2 = await User.findById(idJogador2);
-            console.log('jogador1: ' + jogador1.nome);
-            console.log('jogador2: ' + jogador2.nome);
-
-            if (!(gameKey in controllerVezJogador)) {
-                controllerVezJogador[gameKey] = {
-                    jogador1,
-                    jogador2,
-                    vezJogador: jogador1.nome,
-                    frutas_id: [] // Inicializa corretamente como array vazio
-                };
-            }
-
-            // Verifica se frutas_id existe e tem elementos
-            if (!controllerVezJogador[gameKey].frutas_id || Object.keys(controllerVezJogador[gameKey].frutas_id).length === 0) {
-                embaralhar_frutas();
-            }
-
-            // Atualiza frutas_id
-            controllerVezJogador[gameKey].frutas_id = montar_frutas_id();
-
-            if (!Array.isArray(controllerVezJogador[gameKey].cartasViradas)) {
-                console.log('➕ Criando lista de cartas viradas...');
-                controllerVezJogador[gameKey].cartasViradas = [];
-            }
-
-            controllerVezJogador[gameKey][jogador1.nome] = 0;
-            controllerVezJogador[gameKey][jogador2.nome] = 0;
-
-            console.log('-------------- QUEM SOU EU --------------');
-            console.log(await User.findById(socket.request.session.userId));
-            const info = {
-                jogador1: jogador1.nome,
-                jogador2: jogador2.nome,
-                frutas_id: controllerVezJogador[gameKey].frutas_id,
-                eu: socket.request.session.userId == jogador1.id ? jogador1.nome : jogador2.nome
-            }
-            gameNamespace.to(sessionId).emit('get-info', info);
         });
 
         socket.on('click-in-card', (cardId) => {
@@ -343,16 +344,22 @@ function novoNamespacePartida(gameKey) {
         });
 
 
-        socket.on("disconnect", () => {
+        socket.on("disconnect", async () => {
             console.log(`Cliente desconectado - Sessão ID: ${sessionId}`);
             clearInterval(timer);
 
             // Remove o usuário do objeto
             console.log('----------- [DELETE] ----------------');
-            // console.log('antes:\n' + JSON.stringify(usersPartida));
             const user = usersPartida[sessionId].nome;
             delete usersPartida[sessionId];
-            // console.log('depois:\n' + JSON.stringify(usersPartida));
+            // deletar namespace 'gameNamespace' e a sala 'gameKey' do MongoDB
+            delete io._nsps.get(`/${gameKey}`);
+            try {
+                await Room.deleteOne({ nome: gameKey });
+                console.log(`Sala ${gameKey} removida do banco de dados.`);
+            } catch (error) {
+                console.error("Erro ao deletar a sala do MongoDB:", error);
+            }
 
             // avisar ao jogador2 que o jogador1 abandonou a partida
             socket.emit('oc somioo');
