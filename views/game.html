@@ -108,6 +108,21 @@
         </div>
     </div>
 
+    <!-- Botão para exibir o Toast -->
+    <button type="button" class="btn btn-danger d-none" id="showToastBtn">Exibir Erro</button>
+
+    <!-- Container para o Toast -->
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+        <div id="toastMessage" class="toast align-items-center border-0" role="alert" aria-live="polite"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Uai</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Fechar"></button>
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

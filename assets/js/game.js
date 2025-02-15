@@ -15,6 +15,21 @@ let eu = '';
 let fimDeJogo = true;
 let interval_contagem_regressiva;
 
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("recarregado") === "true") {
+        localStorage.removeItem("recarregado");
+        abrir_modal('abandono');
+        // redirecionar para '/salas'
+        setTimeout(() => window.location.href = '/salas', 3000);
+    }
+});
+
+// Salva um valor antes da página ser recarregada ou fechada
+window.addEventListener("beforeunload", function () {
+    localStorage.setItem("recarregado", "true");
+});
+
+
 const socket = io(`/${window.location.href.split('/').pop()}`);
 socket.on('connect', () => {
     const gameKey = window.location.href.split('/').pop();
@@ -83,10 +98,6 @@ socket.on('session-expired', () => {
 });
 
 socket.on('somioo', (user) => {
-    // alert(`
-    //     user: ${user}
-    //     eu: ${eu}
-    // `);
     abrir_modal('abandono');
     // redirecionar para '/salas'
     setTimeout(() => window.location.href = '/salas', 3000);
@@ -108,6 +119,15 @@ socket.on('ambos-aceitaram', (frutas_id) => {
     }, MAX_TEMPO_PREVIO + 1000);
     mostrar_contagem_regressiva(MAX_TEMPO_PREVIO);
 });
+
+socket.on('achou-par', () => {
+    mostrar_toast('sucesso', 'Par encontrado!');
+});
+
+socket.on('nao-achou-par', () => {
+    mostrar_toast('erro', 'Par não encontrado, passe a vez!');
+});
+
 
 // Configurações inicias
 const MAX_TEMPO_PREVIO = 3000;
@@ -160,7 +180,11 @@ function desenhar_cartas(frutas_id) {
 }
 
 function escolher_flashcard(e) {
-    if (vezJogador.innerHTML == eu && !fimDeJogo) {
+    if (fimDeJogo) {
+        mostrar_toast('erro', 'Jogo ainda está carregando!!!');
+    } else if (vezJogador.innerHTML !== eu) {
+        mostrar_toast('erro', 'Não é sua vez!!!');
+    } else {
         const flashcard = e.target.closest('.flashcard-inner');
 
         if (!flashcard) return; // Se não encontrou o elemento, interrompe a execução
@@ -169,8 +193,6 @@ function escolher_flashcard(e) {
 
         // Enviar o ID do flashcard para o servidor
         socket.emit('click-in-card', flashcard.id.replace('flashcard-', ''));
-    } else {
-        alert('Você não é o jogador da vez!');
     }
 }
 
@@ -178,6 +200,31 @@ function abrir_modal(modalId) {
     btnAbrirModal.setAttribute('data-bs-target', `#${modalId}`);
     btnAbrirModal.click();
 }
+
+function mostrar_toast(tipoMensagem, mensagem) {
+    // mensagem
+    const bodyToast = document.querySelector('#toastMessage .toast-body');
+    console.log('bodyToast: ' + bodyToast);
+    bodyToast.textContent = mensagem;
+
+    const toastMessage = document.getElementById('toastMessage');
+
+    if (tipoMensagem === 'sucesso') {
+        toastMessage.classList.remove('text-bg-danger');
+        toastMessage.classList.add('text-bg-success');
+    } else {
+        toastMessage.classList.remove('text-bg-success');
+        toastMessage.classList.add('text-bg-danger');
+    }
+
+    // showToastBtn
+    const toastEl = new bootstrap.Toast(toastMessage, {
+        delay: 2000 // Exibe por 5 segundos
+    });
+    toastEl.show();
+}
+
+
 
 btnJogarNovamente.addEventListener('click', () => {
     if (btnJogarNovamente.innerHTML.includes('quer jogar novamente')) {
@@ -189,4 +236,5 @@ btnJogarNovamente.addEventListener('click', () => {
         socket.emit('reiniciar-jogo');
     }
 });
+
 

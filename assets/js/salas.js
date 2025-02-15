@@ -18,6 +18,10 @@ let data = {};
 let interval_convite;
 let user_cancel_invite = false;
 
+document.addEventListener("DOMContentLoaded", () => {
+    localStorage.removeItem("recarregado");
+});
+
 // Conexão com o servidor Socket.io
 const socket = io();
 

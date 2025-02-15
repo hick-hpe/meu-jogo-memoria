@@ -235,6 +235,8 @@ function novoNamespacePartida(gameKey) {
 
                 if (controllerVezJogador[gameKey].frutas_id[carta1] === controllerVezJogador[gameKey].frutas_id[carta2]) {
                     console.log('✨ Par encontrado!');
+                    socket.emit('achou-par');
+                    console.log("enviando evento 'achou-par'...");
 
                     const jogador = usersPartida[sessionId].nome;
                     controllerVezJogador[gameKey][jogador] = (controllerVezJogador[gameKey][jogador] || 0) + 2;
@@ -285,7 +287,7 @@ function novoNamespacePartida(gameKey) {
                 } else {
                     console.log('❌ Não é um par.');
 
-                    console.log('TROCAR A VEZ DE JOGAR')
+                    console.log('TROCAR A VEZ DE JOGAR');
                     console.log('jog1: ' + controllerVezJogador[gameKey].jogador1.nome);
                     console.log('jog2: ' + controllerVezJogador[gameKey].jogador2.nome);
 
@@ -295,9 +297,9 @@ function novoNamespacePartida(gameKey) {
                     controllerVezJogador[gameKey].vezJogador = VEZ_JOGADOR;
                     const data = [
                         VEZ_JOGADOR, controllerVezJogador[gameKey].cartasViradas,
-
-                        // atualizar os 'pontos'
-                    ]
+                    ];
+                    
+                    socket.emit('nao-achou-par');
                     gameNamespace.to(gameKey).emit('troca-vez', data);
                 }
 
