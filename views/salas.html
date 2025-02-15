@@ -24,7 +24,7 @@
                 <button class="btn btn-warning" id="btn-save">Salvar</button>
             </div>
             <div class="footer border-top border-5 mt-2 pt-3">
-                <button class="btn btn-danger w-100" id="btn-delete">Deletar usuário</button>
+                <button class="btn btn-danger w-100" id="btn-delete"><i class="bi bi-trash-fill"></i> Deletar usuário</button>
             </div>
         </form>
     </div>
@@ -35,21 +35,21 @@
         <div class="footer border-top border-5 mt-2 pt-3 d-flex justify-content-between">
             <input type="text" class="form-control me-3" id="sala-escolhida" placeholder="Escolha uma sala para jogar!"
                 readonly>
-            <button class="btn btn-success p-2 w-50" id="btn-jogar">Jogar</button>
+            <button class="btn btn-warning p-2 w-50" id="btn-jogar">Jogar</button>
         </div>
     </div>
 
     <button type="button" id="btn-abrir-modal" class="btn btn-primary d-none" data-bs-toggle="modal"
-        data-bs-target="#exampleModal"></button>
+        data-bs-target="#modalInvite"></button>
 
-    <div class="modal fade" id="exampleModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    <div class="modal fade" id="modalInvite" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <button type="button" class="btn-close d-none" id="btn-closeX" data-bs-dismiss="modal"
                     aria-label="Close"></button>
                 <div class="modal-header bg-primary text-light">
-                    <h1 class="w-100 modal-title fs-5 text-center text-uppercase" id="exampleModalLabel">
+                    <h1 class="w-100 modal-title fs-5 text-center text-uppercase" id="modalInviteLabel">
                         <i class="bi bi-exclamation-triangle"></i> Convite recebido <i
                             class="bi bi-exclamation-triangle"></i>
                     </h1>
@@ -58,7 +58,7 @@
                     <strong id="user-modal"></strong> te convidou para jogar!!!
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btn-close" class="btn btn-danger" data-bs-dismiss="modal"><i
+                    <button type="button" id="cancel-invite" class="btn btn-danger" data-bs-dismiss="modal"><i
                             class="bi-x-lg"></i>
                         Cancelar</button>
                     <button type="button" id="accept-invite" class="btn btn-success"><i class="bi-check-lg"></i>
@@ -76,7 +76,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-light">
-                    <h1 class="w-100 modal-title fs-5 text-center text-uppercase" id="exampleModalLabel">
+                    <h1 class="w-100 modal-title fs-5 text-center text-uppercase" id="modalInviteLabel">
                         <i class="bi bi-exclamation-triangle"></i> EXCLUIR CONTA <i
                             class="bi bi-exclamation-triangle"></i>
                     </h1>
@@ -95,12 +95,12 @@
         </div>
     </div>
 
-    <a href="/auth/logout/" class="btn btn-primary position-absolute top-0 start-0 mt-3 ms-3"><i
+    <a href="/auth/logout/" class="btn btn-primary position-absolute top-0 start-0 mt-3 ms-3 btn-bs-primary"><i
             class="bi bi-caret-left-fill"></i> Voltar</a>
 
     <!-- Button trigger modal -->
-    <button style="height: 50px; width: 50px; border-radius: 50%;" type="button"
-        class="btn btn-primary position-absolute bottom-0 end-0 mb-2 me-2 fs-3 d-flex justify-content-center align-items-center" data-bs-toggle="modal"
+    <button style="height: 50px; width: 50px; border-radius: 50%;" type="button" id="btn-duvida"
+        class="btn btn-primary position-absolute bottom-0 end-0 mb-2 me-2 fs-3 d-flex justify-content-center align-items-center btn-bs-primary" data-bs-toggle="modal"
         data-bs-target="#comoJogar">
         ?
     </button>
@@ -108,8 +108,8 @@
     <!-- Modal -->
     <div class="modal fade" id="comoJogar" tabindex="-1" aria-labelledby="comoJogarLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-dark">
                     <h1 class="modal-title fs-5" id="comoJogarLabel">Como Jogar???</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -121,8 +121,8 @@
                         </li>
                     </ol>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">OK</button>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary ok-modal" data-bs-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
@@ -142,6 +142,11 @@
             </div>
         </div>
     </div>
+
+    <!-- <button style="height: 50px; width: 50px; border-radius: 50%;" type="button"
+        class="btn btn-dark position-absolute top-0 end-0 mt-3 me-3 fs-3 d-flex justify-content-center align-items-center" id="toggle-theme">
+        <i class="bi bi-moon-fill text-light"></i>
+    </button> -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

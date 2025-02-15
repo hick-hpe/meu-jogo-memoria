@@ -53,16 +53,34 @@
         Launch demo modal
     </button>
 
-    <!-- Modal de Abandono de partida -->
-    <div class="modal fade victory-modal" id="abandono" tabindex="-1" aria-labelledby="abandonoLabel"
+    <!-- Modal de Abandono de partida - me -->
+    <div class="modal fade victory-modal" id="abandonoMe" tabindex="-1" aria-labelledby="abandonoMeLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-primary">
                 <div class="modal-header bg-primary text-light">
-                    <h1 class="modal-title fs-4 w-100 text-center" id="abandonoLabel">⚠️ OPSS!!! ⚠️</h1>
+                    <h1 class="modal-title fs-4 w-100 text-center" id="abandonoMeLabel">⚠️ CONEXÃO PERDIDA ⚠️</h1>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="fs-5">Não há adversários!!! <br> Busque por outros jogadores para jogar!</p>
+                    <p class="fs-5">Tente novamente com outros jogadores!</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <i>Você está sendo redirecionado para a tela de salas!</i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Abandono de partida - adv -->
+    <div class="modal fade victory-modal" id="abandonoAdv" tabindex="-1" aria-labelledby="abandonoAdvLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-primary">
+                <div class="modal-header bg-primary text-light">
+                    <h1 class="modal-title fs-4 w-100 text-center" id="abandonoAdvLabel">⚠️ OPSS!!! ⚠️</h1>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-5">Seu adversário abandonou a partida!!! <br> Busque por outros jogadores para jogar!</p>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <i>Você está sendo redirecionado para a tela de salas!</i>
@@ -123,6 +141,10 @@
         </div>
     </div>
 
+    <!-- <button style="height: 50px; width: 50px; border-radius: 50%;" type="button"
+        class="btn btn-dark position-absolute top-0 end-0 mt-3 me-3 fs-3 d-flex justify-content-center align-items-center" id="toggle-theme">
+        <i class="bi bi-moon-fill text-light"></i>
+    </button> -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -135,18 +157,6 @@
         crossorigin="anonymous"></script>
 
     <script src="/socket.io/socket.io.js"></script>
-
-    <!-- <script>
-        window.addEventListener("beforeunload", function (event) {
-            // Executar alguma ação antes de fechar a página
-            console.log("Usuário tentou sair!");
-
-            // Alerta padrão do navegador
-            event.preventDefault();
-            event.returnValue = "";
-        });
-
-    </script> -->
 
     <script src="/assets/js/game.js"></script>
 

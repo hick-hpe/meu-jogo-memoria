@@ -13,8 +13,8 @@ body.dark-theme {
     }
 
     & #btn-criar, & #btn-entrar {
-        background-color: #414141;
-        color: #fff;
+        background-color: #fff;
+        color: #414141;
         border: 1px solid #fff;
     }
 

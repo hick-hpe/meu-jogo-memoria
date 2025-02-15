@@ -8,6 +8,8 @@ const btnSave = document.getElementById('btn-save');
 const btnDelete = document.getElementById('btn-delete');
 const btnDeleteConfirm = document.getElementById('deletar-conta');
 const btnAcceptGame = document.getElementById('accept-invite');
+const btnTheme = document.querySelector('#toggle-theme');
+const btnDuvida = document.querySelector('#btn-duvida');
 
 let escolher_sala = true;
 let usersCurrent = [];
@@ -292,4 +294,54 @@ function mostrar_toast(tipoMensagem, mensagem) {
     });
     toastEl.show();
 }
+
+// btnTheme.addEventListener('click', () => {
+//     const currentTheme = document.body.classList.contains('dark-theme') ? '' : 'dark-theme';
+//     toggle_theme(currentTheme);
+// });
+
+
+function toggle_theme(theme) {
+    const icon = btnTheme.querySelector('.bi');
+    const modal = document.querySelector("#comoJogar");
+
+    if (theme === 'dark-theme') {
+        document.body.classList.add('dark-theme');
+        btnTheme.classList.replace('btn-light', 'btn-dark');
+
+        icon.classList.replace('bi-brightness-high-fill', 'bi-moon-fill');
+        icon.classList.replace('text-dark', 'text-light');
+
+        modal.querySelector(".modal-header").classList.remove("bg-primary");
+        modal.querySelector(".modal-header").classList.remove("text-light");
+        modal.querySelector(".modal-header").classList.add("bg-dark");
+        modal.querySelector(".modal-body").classList.add("text-dark");
+        modal.querySelector(".modal-footer button").classList.remove("btn-outline-primary");
+        modal.querySelector(".modal-footer button").classList.add("btn-dark");
+        btnDuvida.classList.remove("btn-primary");
+        btnDuvida.classList.add("btn-dark");
+
+        localStorage.setItem('theme', 'dark-theme');
+    } else {
+        document.body.classList.remove('dark-theme');
+        btnTheme.classList.replace('btn-dark', 'btn-light');
+
+        icon.classList.replace('bi-moon-fill', 'bi-brightness-high-fill');
+        icon.classList.replace('text-light', 'text-dark');
+
+        modal.querySelector(".modal-header").classList.remove("bg-dark");
+        modal.querySelector(".modal-header").classList.add("bg-primary");
+        modal.querySelector(".modal-header").classList.add("text-light");
+        modal.querySelector(".modal-body").classList.remove("text-dark");
+        modal.querySelector(".modal-footer button").classList.add("btn-primary");
+        modal.querySelector(".modal-footer button").classList.remove("btn-dark");
+        btnDuvida.classList.add("btn-primary");
+        btnDuvida.classList.remove("btn-dark");
+
+        localStorage.setItem('theme', '');
+    }
+}
+
+const theme = localStorage.getItem('theme') || '';
+toggle_theme(theme);
 

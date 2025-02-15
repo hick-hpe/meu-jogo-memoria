@@ -124,3 +124,19 @@ img {
     }
 }
 
+body.dark-theme {
+    background-color: #333 !important;
+    color: #fff;
+
+    .container {
+        background-color: #414141 !important;
+        color: #fff;
+    }
+
+    .btn {
+        background-color: #fff;
+        color: #414141;
+        border: 1px solid #fff;
+    }
+}
+

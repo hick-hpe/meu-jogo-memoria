@@ -8,28 +8,34 @@ const btnTheme = document.querySelector('#toggle-theme');
 btnCriar.addEventListener('click', criar_conta);
 btnEntrar.addEventListener('click', entrar_conta);
 btnTheme.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme');
-    theme();
-})
+    const currentTheme = document.body.classList.contains('dark-theme') ? '' : 'dark-theme';
+    toggle_theme(currentTheme);
+});
 
-function theme() {
-    if (btnTheme.classList.contains('btn-dark')) {
-        btnTheme.classList.remove('btn-dark');
-        btnTheme.classList.add('btn-light');
-    } else {
-        btnTheme.classList.remove('btn-light');
-        btnTheme.classList.add('btn-dark');
-    }
 
+function toggle_theme(theme) {
     const icon = btnTheme.querySelector('.bi');
-    if (icon) {
-        icon.classList.toggle('bi-moon-fill');
-        icon.classList.toggle('bi-brightness-high-fill');
-        icon.classList.toggle('text-light');
-        icon.classList.toggle('text-dark');
+    if (theme === 'dark-theme') {
+        document.body.classList.add('dark-theme');
+        btnTheme.classList.replace('btn-light', 'btn-dark');
+
+        icon.classList.replace('bi-brightness-high-fill', 'bi-moon-fill');
+        icon.classList.replace('text-dark', 'text-light');
+
+        localStorage.setItem('theme', 'dark-theme');
+    } else {
+        document.body.classList.remove('dark-theme');
+        btnTheme.classList.replace('btn-dark', 'btn-light');
+
+        icon.classList.replace('bi-moon-fill', 'bi-brightness-high-fill');
+        icon.classList.replace('text-light', 'text-dark');
+
+        localStorage.setItem('theme', '');
     }
 }
-theme();
+
+const theme = localStorage.getItem('theme') || '';
+toggle_theme(theme);
 
 async function criar_conta(e) {
     e.preventDefault();
@@ -89,7 +95,7 @@ async function entrar_conta(e) {
 
     if (data && data.username) {
         mostrar_toast('sucesso', '✅ SUCESSO ✅ Login bem-sucedido!!!');
-        setTimeout(() => window.location.href = '/salas', 3000);
+        setTimeout(() => {window.location.href = '/salas'}, 3000);
     } else {
         mostrar_toast('erro', '⚠️ ERRO ⚠️ Usuário ou senha incorretos!!!');
     }

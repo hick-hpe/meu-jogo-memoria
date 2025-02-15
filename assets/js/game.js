@@ -11,6 +11,7 @@ const btnAbrirModal = document.querySelector('#btn-abrir-modal');
 btnAbrirModal.style.display = 'none';
 const btnJogarNovamente = document.querySelector('#jogar-novamente');
 btnJogarNovamente.style.display = 'none';
+const btnTheme = document.querySelector('#toggle-theme');
 let eu = '';
 let fimDeJogo = true;
 let interval_contagem_regressiva;
@@ -18,7 +19,7 @@ let interval_contagem_regressiva;
 document.addEventListener("DOMContentLoaded", () => {
     if (localStorage.getItem("recarregado") === "true") {
         localStorage.removeItem("recarregado");
-        abrir_modal('abandono');
+        abrir_modal('abandonoMe');
         // redirecionar para '/salas'
         setTimeout(() => window.location.href = '/salas', 3000);
     }
@@ -98,7 +99,7 @@ socket.on('session-expired', () => {
 });
 
 socket.on('somioo', (user) => {
-    abrir_modal('abandono');
+    abrir_modal('abandonoAdv');
     // redirecionar para '/salas'
     setTimeout(() => window.location.href = '/salas', 3000);
 });
@@ -237,4 +238,33 @@ btnJogarNovamente.addEventListener('click', () => {
     }
 });
 
+// btnTheme.addEventListener('click', () => {
+//     console.log('themeeeeeeee')
+//     const currentTheme = document.body.classList.contains('dark-theme') ? '' : 'dark-theme';
+//     toggle_theme(currentTheme);
+// });
 
+function toggle_theme(theme) {
+    const icon = btnTheme.querySelector('.bi');
+
+    if (theme === 'dark-theme') {
+        document.body.classList.add('dark-theme');
+        btnTheme.classList.replace('btn-light', 'btn-dark');
+
+        icon.classList.replace('bi-brightness-high-fill', 'bi-moon-fill');
+        icon.classList.replace('text-dark', 'text-light');
+
+        localStorage.setItem('theme', 'dark-theme');
+    } else {
+        document.body.classList.remove('dark-theme');
+        btnTheme.classList.replace('btn-dark', 'btn-light');
+
+        icon.classList.replace('bi-moon-fill', 'bi-brightness-high-fill');
+        icon.classList.replace('text-light', 'text-dark');
+
+        localStorage.setItem('theme', '');
+    }
+}
+
+const theme = localStorage.getItem('theme') || '';
+toggle_theme(theme);
